@@ -21,11 +21,15 @@ export default function InboxPage() {
   const [items, setItems] = useState<Convo[]>([]);
   const [q, setQ] = useState('');
   const [state, setState] = useState<'all'|'BOT_ON'|'HUMAN_TAKEOVER'>('all');
+  const [assigned, setAssigned] = useState<'all'|'me'|'unassigned'>('all');
+  const [leadStatus, setLeadStatus] = useState<'all'|string>('all');
 
   async function load() {
     const qs = new URLSearchParams();
     if (q.trim()) qs.set('q', q.trim());
     if (state !== 'all') qs.set('state', state);
+    if (assigned !== 'all') qs.set('assigned', assigned);
+    if (leadStatus !== 'all') qs.set('leadStatus', leadStatus);
     const res = await api<Convo[]>(`/api/conversations?${qs.toString()}`);
     setItems(res);
   }
@@ -39,7 +43,8 @@ export default function InboxPage() {
       socket.off('conversation:updated', onUpdate);
       socket.off('message:new', onUpdate);
     };
-  }, [q, state]);
+  }, [q, state, assigned, leadStatus]);
+  
 
   const user = useMemo(() => {
     try { return JSON.parse(localStorage.getItem('user')||'{}'); } catch { return {}; }
@@ -61,6 +66,7 @@ export default function InboxPage() {
           <div className="text-sm text-slate-400">Un solo número • varios vendedores • bot/humano sin que el cliente lo note</div>
         </div>
         <div className="flex gap-2">
+          <Button tone="slate" onClick={()=>nav('/dashboard')}>Dashboard</Button>
           <Button tone="slate" onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('user'); nav('/login'); }}>
             Salir
           </Button>
@@ -68,7 +74,7 @@ export default function InboxPage() {
       </div>
 
       <div className="mt-5 grid grid-cols-1 md:grid-cols-12 gap-3">
-        <div className="md:col-span-4">
+        <div className="md:col-span-3">
           <Input placeholder="Buscar por número / waFrom..." value={q} onChange={e=>setQ(e.target.value)} />
         </div>
         <div className="md:col-span-3">
@@ -79,10 +85,33 @@ export default function InboxPage() {
             <option value="HUMAN_TAKEOVER">HUMAN_TAKEOVER</option>
           </select>
         </div>
+        <div className="md:col-span-3">
+          <select value={assigned} onChange={e=>setAssigned(e.target.value as any)}
+            className="w-full px-3 py-2 rounded-xl bg-slate-900/60 ring-1 ring-slate-800 text-slate-100">
+            <option value="all">Asignación: todas</option>
+            <option value="me">Asignadas a mí</option>
+            <option value="unassigned">Sin asignar</option>
+          </select>
+        </div>
+        <div className="md:col-span-3">
+          <select value={leadStatus} onChange={e=>setLeadStatus(e.target.value as any)}
+            className="w-full px-3 py-2 rounded-xl bg-slate-900/60 ring-1 ring-slate-800 text-slate-100">
+            <option value="all">Lead: todos</option>
+            <option value="NEW">NEW</option>
+            <option value="COLD">COLD</option>
+            <option value="WARM">WARM</option>
+            <option value="HOT_WAITING">HOT_WAITING</option>
+            <option value="HOT">HOT</option>
+            <option value="HUMAN">HUMAN</option>
+            <option value="HOT_LOST">HOT_LOST</option>
+            <option value="CLOSED_WON">CLOSED_WON</option>
+            <option value="CLOSED_LOST">CLOSED_LOST</option>
+          </select>
+        </div>
         <div className="md:col-span-2">
           <Button tone="blue" className="w-full" onClick={()=>load().catch(console.error)}>Actualizar</Button>
         </div>
-        <div className="md:col-span-3 flex items-center justify-end text-sm text-slate-400">
+        <div className="md:col-span-4 flex items-center justify-end text-sm text-slate-400">
           {user?.name ? `Logueado: ${user.name}` : ''}
         </div>
       </div>

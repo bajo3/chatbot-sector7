@@ -18,10 +18,14 @@ enum ConversationState {
 }
 
 enum LeadStatus {
+  NEW
   COLD
   WARM
   HOT_WAITING
   HOT
+  HUMAN
+  CLOSED_WON
+  CLOSED_LOST
   HOT_LOST
 }
 
@@ -63,11 +67,12 @@ model Conversation {
   id                 String            @id @default(cuid())
   waFrom             String            @unique
   state              ConversationState @default(BOT_ON)
-  leadStatus         LeadStatus        @default(COLD)
+  leadStatus         LeadStatus        @default(NEW)
   intentScore        Int               @default(0)
   assignedUserId     String?
   assignedUser       User?             @relation("AssignedUser", fields: [assignedUserId], references: [id])
   context            Json              @default("{}")
+  botPausedUntil     DateTime?
   lastCustomerMsgAt  DateTime?
   lastBotMsgAt       DateTime?
   lastHumanMsgAt     DateTime?

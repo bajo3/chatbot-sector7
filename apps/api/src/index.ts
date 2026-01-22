@@ -8,6 +8,7 @@ import { webhookRouter } from './routes/webhook.js';
 import { authRouter } from './routes/auth.js';
 import { conversationsRouter } from './routes/conversations.js';
 import { usersRouter } from './routes/users.js';
+import { metricsRouter } from './routes/metrics.js';
 import { initSocket } from './server/socket.js';
 import { runPeriodicJobs } from './scheduler/jobs.js';
 
@@ -28,6 +29,7 @@ app.use('/webhook', webhookRouter);
 app.use('/auth', authRouter);
 app.use('/api/conversations', conversationsRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/metrics', metricsRouter);
 
 const server = http.createServer(app);
 initSocket(server, env.PANEL_ORIGIN);

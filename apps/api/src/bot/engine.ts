@@ -2,6 +2,8 @@ import { detectIntent } from './intent.js';
 import { searchProducts } from './catalog.js';
 import {
   buildAskClarify,
+  buildWelcome,
+  buildSoftClose,
   buildAfterHoursCapture,
   buildHandoffMsg,
   buildInstallmentsReply,
@@ -16,7 +18,7 @@ type BotResult = { replied: boolean };
 
 // Keep runtime independent from Prisma named exports (ESM/CJS interop).
 type ConversationState = 'BOT_ON' | 'HUMAN_TAKEOVER';
-type LeadStatus = 'COLD' | 'WARM' | 'HOT_WAITING' | 'HOT' | 'HOT_LOST';
+type LeadStatus = 'NEW' | 'COLD' | 'WARM' | 'HOT_WAITING' | 'HOT' | 'HUMAN' | 'CLOSED_WON' | 'CLOSED_LOST' | 'HOT_LOST';
 
 // Minimal shape we need from a Conversation row.
 type ConversationLike = {
@@ -42,6 +44,8 @@ export async function handleIncomingCustomerMessage(
 
   // Save context
   const ctx: any = (convo.context as any) || {};
+  const firstTouch = !ctx.welcomedAt;
+  if (firstTouch) ctx.welcomedAt = new Date().toISOString();
   if (intent.kind === 'SEARCH' && intent.query) ctx.lastQuery = intent.query;
   if (intent.kind === 'HUMAN') ctx.humanRequested = true;
   if (intent.kind === 'BUY_SIGNAL') ctx.buySignalAt = new Date().toISOString();
@@ -65,7 +69,7 @@ export async function handleIncomingCustomerMessage(
 
     await prisma.conversation.update({
       where: { id: convo.id },
-      data: { state: 'HUMAN_TAKEOVER', lastBotMsgAt: new Date() }
+      data: { state: 'HUMAN_TAKEOVER', leadStatus: 'HUMAN', lastBotMsgAt: new Date() }
     });
 
     await prisma.conversationEvent.create({
@@ -118,7 +122,9 @@ export async function handleIncomingCustomerMessage(
   if (intent.kind === 'PRICE') {
     const q = (convo.context as any)?.lastQuery || text;
     const products = await searchProducts(q, 3);
-    const msg = products.length ? buildSearchReply(products, q) : buildAskClarify();
+    const msg = products.length
+      ? `${buildSearchReply(products, q)}\n\n${buildSoftClose()}`
+      : (firstTouch ? buildWelcome() : buildAskClarify());
     await sendInteractiveButtons({
       to: convo.waFrom,
       bodyText: msg,
@@ -136,7 +142,8 @@ export async function handleIncomingCustomerMessage(
   if (intent.kind === 'SEARCH') {
     const q = intent.query || text;
     const products = await searchProducts(q, 3);
-    const msg = buildSearchReply(products, q);
+    const base = products.length ? buildSearchReply(products, q) : (firstTouch ? buildWelcome() : buildAskClarify());
+    const msg = products.length ? `${base}\n\n${buildSoftClose()}` : base;
     await sendInteractiveButtons({
       to: convo.waFrom,
       bodyText: msg,
@@ -154,14 +161,14 @@ export async function handleIncomingCustomerMessage(
     return { replied: true };
   }
 
-  // Unknown: ask clarify
-  const msg = buildAskClarify();
+  // Unknown: first message -> welcome; else ask clarify
+  const msg = firstTouch ? buildWelcome() : buildAskClarify();
   await sendInteractiveButtons({
     to: convo.waFrom,
     bodyText: msg,
     buttons: [
-      { id: 'PICK:sillas gamer', title: 'Sillas gamer' },
       { id: 'PICK:ps5', title: 'PS5' },
+      { id: 'PICK:silla gamer', title: 'Silla gamer' },
       { id: 'HUMAN', title: 'Asesor' }
     ]
   });
@@ -171,7 +178,10 @@ export async function handleIncomingCustomerMessage(
 }
 
 function computeLeadStatus(score: number, current: LeadStatus): LeadStatus {
+  if (current === 'CLOSED_WON' || current === 'CLOSED_LOST') return current;
+  if (current === 'HUMAN') return current;
   if (score >= 8) return 'HOT';
   if (score >= 4) return 'WARM';
+  if (current === 'NEW') return 'COLD';
   return current === 'HOT_LOST' ? 'WARM' : 'COLD';
 }

@@ -65,7 +65,7 @@ webhookRouter.post('/', async (req, res) => {
       // Upsert conversation by waFrom (customer)
       const convo = await prisma.conversation.upsert({
         where: { waFrom: from },
-        create: { waFrom: from, state: 'BOT_ON' },
+        create: { waFrom: from, state: 'BOT_ON', leadStatus: 'NEW' },
         update: { updatedAt: new Date() }
       });
 
@@ -92,9 +92,11 @@ webhookRouter.post('/', async (req, res) => {
       const current = await prisma.conversation.findUnique({ where: { id: convo.id } });
       if (!current) continue;
 
-      if (current.state === 'HUMAN_TAKEOVER') {
+      const paused = current.botPausedUntil && new Date(current.botPausedUntil) > new Date();
+
+      if (current.state === 'HUMAN_TAKEOVER' || paused) {
         await prisma.conversationEvent.create({
-          data: { conversationId: convo.id, kind:'BOT_SILENCED_HUMAN_TAKEOVER', payload: {} }
+          data: { conversationId: convo.id, kind: paused ? 'BOT_SILENCED_PAUSED' : 'BOT_SILENCED_HUMAN_TAKEOVER', payload: { pausedUntil: current.botPausedUntil } }
         });
         continue;
       }

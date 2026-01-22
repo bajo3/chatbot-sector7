@@ -30,11 +30,24 @@ export function buildInstallmentsReply() {
 }
 
 export function buildAskClarify() {
-  return '¿Qué estás buscando? Ej: “silla gamer”, “ps5”, “auriculares”.';
+  return '¿Qué estás buscando? Si me decís *modelo / marca* o para qué lo necesitás, te paso opciones y precios.';
+}
+
+export function buildWelcome() {
+  return [
+    '¡Hola! Soy el asistente de Sector 7 👋',
+    'Decime qué querés ver y te paso opciones al toque.',
+    '',
+    'Ejemplos: *PS5*, *silla gamer*, *notebook*, *auriculares*, *monitor*.'
+  ].join('\n');
+}
+
+export function buildSoftClose() {
+  return '¿Querés que te lo arme para contado o en cuotas?';
 }
 
 export function buildHandoffMsg() {
-  return 'Dale, te paso con un asesor 🙌 Ya te escriben por acá.';
+  return 'Perfecto 🙌 te paso con un asesor para cerrarlo rápido. Ya te escriben por acá.';
 }
 
 export function buildAfterHoursCapture() {

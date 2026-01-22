@@ -14,6 +14,7 @@ type Convo = {
   intentScore: number;
   assignedUserId?: string|null;
   assignedUser?: { id:string; name:string }|null;
+  botPausedUntil?: string|null;
 };
 
 type Msg = {
@@ -82,6 +83,18 @@ export default function ChatPage() {
     await load();
   }
 
+  async function pauseBot(minutes: number) {
+    if (!id) return;
+    await api(`/api/conversations/${id}/pause-bot`, { method:'POST', body: JSON.stringify({ minutes }) });
+    await load();
+  }
+
+  async function resumeBot() {
+    if (!id) return;
+    await api(`/api/conversations/${id}/resume-bot`, { method:'POST', body: JSON.stringify({}) });
+    await load();
+  }
+
   async function addNote() {
     if (!id || !noteText.trim()) return;
     await api(`/api/conversations/${id}/note`, { method:'POST', body: JSON.stringify({ text: noteText.trim() }) });
@@ -100,6 +113,7 @@ export default function ChatPage() {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Button tone="slate" onClick={()=>nav('/')}>← Inbox</Button>
+          <Button tone="slate" onClick={()=>nav('/dashboard')}>Dashboard</Button>
           <div>
             <div className="text-lg font-semibold">{convo?.waFrom || '...'}</div>
             <div className="text-xs text-slate-400">ID: {id}</div>
@@ -108,6 +122,9 @@ export default function ChatPage() {
 
         <div className="flex items-center gap-2">
           {convo && <Badge tone={convo.state==='HUMAN_TAKEOVER'?'blue':'slate'}>{convo.state}</Badge>}
+          {convo?.botPausedUntil && new Date(convo.botPausedUntil).getTime() > Date.now() && (
+            <Badge tone="amber">BOT PAUSADO</Badge>
+          )}
           {convo && <Badge tone={convo.leadStatus==='HOT'?'red':(convo.leadStatus==='WARM'?'amber':'slate') as any}>{convo.leadStatus}</Badge>}
           {convo && <div className="text-sm text-slate-300">Score: {convo.intentScore}</div>}
         </div>
@@ -122,6 +139,8 @@ export default function ChatPage() {
             <div className="flex gap-2">
               <Button tone="blue" onClick={takeover}>Tomar</Button>
               <Button tone="slate" onClick={returnToBot}>Devolver al bot</Button>
+              <Button tone="amber" onClick={()=>pauseBot(60)}>Pausar bot 1h</Button>
+              <Button tone="slate" onClick={resumeBot}>Reanudar bot</Button>
             </div>
           </div>
 

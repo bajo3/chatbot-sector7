@@ -4,7 +4,7 @@ import { prisma } from '../db/prisma.js';
 import { minutesBetween, isWithinHumanHours } from '../utils/time.js';
 
 type ConversationState = 'BOT_ON' | 'HUMAN_TAKEOVER';
-type LeadStatus = 'COLD' | 'WARM' | 'HOT_WAITING' | 'HOT' | 'HOT_LOST';
+type LeadStatus = 'NEW' | 'COLD' | 'WARM' | 'HOT_WAITING' | 'HOT' | 'HUMAN' | 'CLOSED_WON' | 'CLOSED_LOST' | 'HOT_LOST';
 
 /**
  * Run periodic jobs:

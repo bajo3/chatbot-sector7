@@ -2,7 +2,7 @@ import { prisma } from '../db/prisma.js';
 import { isWithinHumanHours } from '../utils/time.js';
 
 type ConversationState = 'BOT_ON' | 'HUMAN_TAKEOVER';
-type LeadStatus = 'COLD' | 'WARM' | 'HOT_WAITING' | 'HOT' | 'HOT_LOST';
+type LeadStatus = 'NEW' | 'COLD' | 'WARM' | 'HOT_WAITING' | 'HOT' | 'HUMAN' | 'CLOSED_WON' | 'CLOSED_LOST' | 'HOT_LOST';
 
 /**
  * Assign conversation to an online seller.
@@ -48,7 +48,7 @@ export async function requestHandoffIfNeeded(conversationId: string) {
 
   await prisma.conversation.update({
     where: { id: conversationId },
-    data: { assignedUserId: chosen.id, leadStatus: 'HOT' as LeadStatus }
+    data: { assignedUserId: chosen.id, leadStatus: 'HUMAN' as LeadStatus }
   });
 
   await prisma.conversationEvent.create({
