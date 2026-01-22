@@ -1,0 +1,14 @@
+# Railway (Nixpacks) config for the API workspace.
+# In Railway set: Root Directory = apps/api
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = [
+  "npm run build",
+  "npm prune --omit=dev"
+]
+
+[start]
+cmd = "npm start"
