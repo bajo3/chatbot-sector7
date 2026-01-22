@@ -1,6 +1,6 @@
 import { Worker } from 'bullmq';
 import { env } from './env.js';
-import { createRedis } from './queue/redis.js';
+import { createRedisConnection } from './queue/redis.js';
 import { prisma } from './db/prisma.js';
 import { sendText } from './whatsapp/client.js';
 
@@ -9,7 +9,7 @@ if (!env.REDIS_URL) {
   process.exit(1);
 }
 
-const connection = createRedis();
+const connection = createRedisConnection();
 
 new Worker('followup', async (job) => {
   const data = job.data as { conversationId: string; kind: string };

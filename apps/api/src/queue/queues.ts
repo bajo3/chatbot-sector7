@@ -1,8 +1,8 @@
 import { Queue } from 'bullmq';
-import { createRedis } from './redis.js';
+import { createRedisConnection } from './redis.js';
 
 export const followupQueue = new Queue('followup', {
-  connection: createRedis()
+  connection: createRedisConnection()
 });
 
 export type FollowupJobData = {

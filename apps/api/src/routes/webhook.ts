@@ -21,18 +21,16 @@ webhookRouter.get('/', (req, res) => {
 
 // WhatsApp webhook: POST /webhook
 webhookRouter.post('/', async (req, res) => {
-  // signature verification (Meta sends: X-Hub-Signature-256: sha256=...)
+  // signature verification
   const sig = req.header('X-Hub-Signature-256');
   const raw = (req as any).rawBody as Buffer | undefined;
 
-  const signatureOk = raw ? verifyHubSignature(raw, env.META_APP_SECRET, sig) : false;
-
-  // ✅ If required -> block. If optional -> allow (for local curl/dev).
-  if (!signatureOk && env.WEBHOOK_SIGNATURE_MODE === 'required') {
+  const ok = raw ? verifyHubSignature(raw, env.META_APP_SECRET, sig) : false;
+  if (!ok && env.WEBHOOK_SIGNATURE_MODE === 'required') {
     return res.status(401).json({ error: 'Invalid signature' });
   }
 
-  // ACK fast (Meta expects 200 quickly)
+  // ACK fast
   res.sendStatus(200);
 
   try {
@@ -53,31 +51,16 @@ webhookRouter.post('/', async (req, res) => {
       const exists = await prisma.message.findUnique({ where: { waMessageId } });
       if (exists) continue;
 
-      let text = '';
+      let text: string = '';
       let interactiveId: string | undefined;
 
-      if (type === 'text') {
-        text = m.text?.body || '';
-      }
-
+      if (type === 'text') text = m.text?.body || '';
       if (type === 'interactive') {
-        // WhatsApp interactive can be:
-        // - button_reply
-        // - list_reply
+        // button reply
         const br = m.interactive?.button_reply;
-        const lr = m.interactive?.list_reply;
-
         if (br?.id) interactiveId = br.id;
-        if (!interactiveId && lr?.id) interactiveId = lr.id;
-
-        text =
-          br?.title ||
-          lr?.title ||
-          'interactive';
+        text = br?.title || 'interactive';
       }
-
-      // Fallback for other types
-      if (!text) text = `[${type}]`;
 
       // Upsert conversation by waFrom (customer)
       const convo = await prisma.conversation.upsert({
@@ -92,7 +75,7 @@ webhookRouter.post('/', async (req, res) => {
           direction: 'IN',
           sender: 'CUSTOMER',
           type: type === 'text' || type === 'interactive' ? 'TEXT' : 'SYSTEM',
-          text,
+          text: text || `[${type}]`,
           waMessageId
         }
       });
@@ -111,7 +94,7 @@ webhookRouter.post('/', async (req, res) => {
 
       if (current.state === 'HUMAN_TAKEOVER') {
         await prisma.conversationEvent.create({
-          data: { conversationId: convo.id, kind: 'BOT_SILENCED_HUMAN_TAKEOVER', payload: {} }
+          data: { conversationId: convo.id, kind:'BOT_SILENCED_HUMAN_TAKEOVER', payload: {} }
         });
         continue;
       }
@@ -123,24 +106,11 @@ webhookRouter.post('/', async (req, res) => {
     // statuses
     const statuses = value?.statuses || [];
     for (const s of statuses) {
-      const conversationId = await findConversationIdByToOrFrom(s.recipient_id);
-
-      // ✅ Don’t create invalid rows if you can’t map it yet.
-      if (!conversationId) {
-        await prisma.conversationEvent
-          .create({
-            data: { conversationId: undefined as any, kind: 'WA_STATUS_UNMAPPED', payload: s }
-          })
-          .catch(() => {});
-        continue;
-      }
-
-      await prisma.conversationEvent
-        .create({
-          data: { conversationId, kind: 'WA_STATUS', payload: s }
-        })
-        .catch(() => {});
+      await prisma.conversationEvent.create({
+        data: { conversationId: (await findConversationIdByToOrFrom(s.recipient_id)) || undefined as any, kind:'WA_STATUS', payload: s }
+      }).catch(()=>{});
     }
+
   } catch (e) {
     console.error('Webhook processing error', e);
   }

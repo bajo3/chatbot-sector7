@@ -21,7 +21,11 @@ const envSchema = z.object({
   ENABLE_JOBS: z.coerce.boolean().default(true),
   SUPABASE_URL: z.string().optional().or(z.literal('')).default(''),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional().or(z.literal('')).default(''),
-  SUPABASE_STORAGE_BUCKET: z.string().optional().or(z.literal('')).default('sector7')
+  SUPABASE_STORAGE_BUCKET: z.string().optional().or(z.literal('')).default('sector7'),
+
+  // Seed credentials (dev convenience). Override in production.
+  ADMIN_SEED_PASSWORD: z.string().min(6).default('admin123456'),
+  SELLER_SEED_PASSWORD: z.string().min(6).default('seller123456')
 });
 
 export const env = envSchema.parse(process.env);
