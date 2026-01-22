@@ -1,7 +1,7 @@
 import { prisma } from '../db/prisma.js';
-import type { Product } from '@prisma/client';
-//
-type ProductRow = Product;
+
+// Tipo inferido desde Prisma (sin depender de @prisma/client)
+type ProductRow = Awaited<ReturnType<typeof prisma.product.findMany>>[number];
 
 function norm(s: string): string {
   return s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
@@ -9,13 +9,6 @@ function norm(s: string): string {
 
 function tokenize(q: string): string[] {
   return norm(q).split(/[^a-z0-9]+/g).filter((w: string) => w.length >= 2);
-}
-
-function tagsToText(tags: unknown): string {
-  // soporta tags como string, string[], null/undefined
-  if (Array.isArray(tags)) return tags.filter(Boolean).join(' ');
-  if (typeof tags === 'string') return tags;
-  return '';
 }
 
 export async function searchProducts(query: string, limit = 3): Promise<ProductRow[]> {
@@ -26,11 +19,11 @@ export async function searchProducts(query: string, limit = 3): Promise<ProductR
 
   const scored: Array<{ p: ProductRow; score: number }> = all
     .map((p: ProductRow) => {
-      const hay = norm(
-        [p.title, p.category ?? '', tagsToText((p as any).tags)]
-          .filter((v: string) => v.length > 0)
-          .join(' ')
-      );
+      // tags puede ser string o string[] según tu schema → lo normalizamos a string
+      const tagsText =
+        Array.isArray((p as any).tags) ? (p as any).tags.join(' ') : ((p as any).tags ?? '');
+
+      const hay = norm([p.title, (p as any).category ?? '', tagsText].join(' '));
 
       let score = 0;
       for (const t of tokens) if (hay.includes(t)) score += 3;
