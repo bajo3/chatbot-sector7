@@ -12,7 +12,7 @@ import { metricsRouter } from './routes/metrics.js';
 import { initSocket } from './server/socket.js';
 import { runPeriodicJobs } from './scheduler/jobs.js';
 import { ensureAdminUser } from './bootstrap/ensureAdmin.js';
-import { catalogRouter } from "./catalog/catalog.routes";
+import { catalogRouter } from "./catalog/catalog.routes.js";
 
 const app = express();
 

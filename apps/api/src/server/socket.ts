@@ -9,13 +9,16 @@ export function initSocket(httpServer: any) {
   io = new Server(httpServer, {
     cors: {
       origin: (origin, cb) => {
+        if (!origin) return cb(null, true);
         if (isAllowedPanelOrigin(origin)) return cb(null, true);
         return cb(new Error(`CORS blocked origin: ${origin}`), false);
       },
       credentials: true,
-      methods: ['GET','POST']
-    }
+      methods: ["GET", "POST"],
+    },
+    transports: ["websocket", "polling"],
   });
+
 
   // Optional: scale Socket.IO horizontally with Redis adapter
   if (env.REDIS_URL) {
