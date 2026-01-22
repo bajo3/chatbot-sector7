@@ -1,0 +1,14 @@
+[
+  {
+    "id": "sku-123",
+    "title": "Silla Gamer ThunderX3 EC1 - Black/Red",
+    "category": "Sillas gamer",
+    "priceArs": 299999,
+    "priceUsd": null,
+    "inStock": true,
+    "imageUrl": "https://.../image.jpg",
+    "productUrl": "https://sector7.com.ar/producto/silla-gamer-thunderx3-ec1",
+    "tags": "thunderx3 silla gamer reclinable",
+    "popularity": 0
+  }
+]

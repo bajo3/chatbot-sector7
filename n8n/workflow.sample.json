@@ -1,0 +1,23 @@
+{
+  "name": "Sector7 - Followup HOT_LOST (sample)",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "sector7-hot-lost",
+        "responseMode": "onReceived"
+      },
+      "id": "Webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        260,
+        300
+      ]
+    }
+  ],
+  "connections": {},
+  "active": false,
+  "settings": {},
+  "versionId": "1"
+}

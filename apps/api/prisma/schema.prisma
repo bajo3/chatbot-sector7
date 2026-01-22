@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  SELLER
+}
+
+enum ConversationState {
+  BOT_ON
+  HUMAN_TAKEOVER
+}
+
+enum LeadStatus {
+  COLD
+  WARM
+  HOT_WAITING
+  HOT
+  HOT_LOST
+}
+
+enum MessageDirection {
+  IN
+  OUT
+}
+
+enum MessageSender {
+  CUSTOMER
+  BOT
+  HUMAN
+  SYSTEM
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  AUDIO
+  SYSTEM
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  role         Role     @default(SELLER)
+  passwordHash String
+  isActive     Boolean  @default(true)
+  isOnline     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  conversations Conversation[] @relation("AssignedUser")
+  notes         Note[]
+}
+
+model Conversation {
+  id                 String            @id @default(cuid())
+  waFrom             String            @unique
+  state              ConversationState @default(BOT_ON)
+  leadStatus         LeadStatus        @default(COLD)
+  intentScore        Int               @default(0)
+  assignedUserId     String?
+  assignedUser       User?             @relation("AssignedUser", fields: [assignedUserId], references: [id])
+  context            Json              @default("{}")
+  lastCustomerMsgAt  DateTime?
+  lastBotMsgAt       DateTime?
+  lastHumanMsgAt     DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  messages           Message[]
+  notes              Note[]
+  events             ConversationEvent[]
+}
+
+model Message {
+  id             String           @id @default(cuid())
+  conversationId String
+  conversation   Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  direction      MessageDirection
+  sender         MessageSender
+  type           MessageType      @default(TEXT)
+  text           String?
+  mediaUrl       String?
+  waMessageId    String?          @unique
+  timestamp      DateTime         @default(now())
+}
+
+model Note {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text           String
+  createdAt      DateTime     @default(now())
+}
+
+model ConversationEvent {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  kind           String
+  payload        Json         @default("{}")
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model Product {
+  id          String   @id
+  title       String
+  category    String?
+  priceArs    Int
+  priceUsd    Float?
+  inStock     Boolean  @default(true)
+  imageUrl    String?
+  productUrl  String?
+  tags        String?
+  popularity  Int      @default(0)
+  updatedAt   DateTime @updatedAt
+}
