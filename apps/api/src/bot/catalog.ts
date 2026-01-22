@@ -1,6 +1,6 @@
 import { prisma } from '../db/prisma.js';
 import type { Product } from '@prisma/client';
-
+//
 type ProductRow = Product;
 
 function norm(s: string): string {
