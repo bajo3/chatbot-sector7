@@ -1,17 +1,16 @@
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { env } from '../env.js';
+import { env, isAllowedPanelOrigin } from '../env.js';
 import IORedis from 'ioredis';
 
 export let io: Server;
 
-export function initSocket(httpServer: any, panelOrigins: string[]) {
+export function initSocket(httpServer: any) {
   io = new Server(httpServer, {
     cors: {
       origin: (origin, cb) => {
-        if (!origin) return cb(null, true);
-        if (panelOrigins.includes(origin)) return cb(null, true);
-        return cb(new Error('CORS blocked'), false);
+        if (isAllowedPanelOrigin(origin)) return cb(null, true);
+        return cb(new Error(`CORS blocked origin: ${origin}`), false);
       },
       credentials: true,
       methods: ['GET','POST']

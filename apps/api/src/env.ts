@@ -54,3 +54,42 @@ export const panelOrigins = (() => {
       }
     });
 })();
+
+function normalizeOrigin(input: string): string {
+  try {
+    return new URL(input).origin;
+  } catch {
+    return input;
+  }
+}
+
+/**
+ * Centralized allowlist logic for both Express CORS and Socket.IO.
+ *
+ * Why: In production (Railway + Vercel), the panel origin can vary (Vercel previews)
+ * and strict origin matching causes the API to omit CORS headers, breaking both REST
+ * and Socket.IO (polling/WebSocket) with 400/CORS errors.
+ */
+export function isAllowedPanelOrigin(origin?: string | null): boolean {
+  // Allow server-to-server calls and health checks with no Origin
+  if (!origin) return true;
+
+  const o = normalizeOrigin(origin);
+  if (panelOrigins.includes(o)) return true;
+
+  // Allow Vercel production + preview domains for this panel.
+  // Examples:
+  // - https://chatbot-sector7-panel.vercel.app
+  // - https://chatbot-sector7-panel-git-branch-username.vercel.app
+  // - https://chatbot-sector7-panel-abcdef.vercel.app
+  try {
+    const u = new URL(o);
+    const host = u.hostname.toLowerCase();
+    if (host === 'chatbot-sector7-panel.vercel.app') return true;
+    if (host.startsWith('chatbot-sector7-panel-') && host.endsWith('.vercel.app')) return true;
+  } catch {
+    // ignore
+  }
+
+  return false;
+}

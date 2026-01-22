@@ -68,8 +68,8 @@ model Conversation {
   waFrom             String            @unique
   state              ConversationState @default(BOT_ON)
 
-  // ✅ FINAL: ya podés usar NEW porque ya fue commiteado en la migración anterior
-  leadStatus         LeadStatus        @default(NEW)
+  // ✅ TEMPORAL: para que Prisma pueda agregar el enum value NEW en una migración
+  leadStatus         LeadStatus        @default(COLD)
 
   intentScore        Int               @default(0)
   assignedUserId     String?
