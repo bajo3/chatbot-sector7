@@ -67,7 +67,10 @@ model Conversation {
   id                 String            @id @default(cuid())
   waFrom             String            @unique
   state              ConversationState @default(BOT_ON)
+
+  // ✅ FINAL: ya podés usar NEW porque ya fue commiteado en la migración anterior
   leadStatus         LeadStatus        @default(NEW)
+
   intentScore        Int               @default(0)
   assignedUserId     String?
   assignedUser       User?             @relation("AssignedUser", fields: [assignedUserId], references: [id])
