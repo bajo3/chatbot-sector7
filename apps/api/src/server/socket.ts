@@ -5,9 +5,17 @@ import IORedis from 'ioredis';
 
 export let io: Server;
 
-export function initSocket(httpServer: any, corsOrigin: string) {
+export function initSocket(httpServer: any, panelOrigins: string[]) {
   io = new Server(httpServer, {
-    cors: { origin: corsOrigin, methods: ['GET','POST'] }
+    cors: {
+      origin: (origin, cb) => {
+        if (!origin) return cb(null, true);
+        if (panelOrigins.includes(origin)) return cb(null, true);
+        return cb('CORS blocked', false);
+      },
+      credentials: true,
+      methods: ['GET','POST']
+    }
   });
 
   // Optional: scale Socket.IO horizontally with Redis adapter

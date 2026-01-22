@@ -5,6 +5,8 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(5050),
   PUBLIC_BASE_URL: z.string().default('http://localhost:5050'),
   PANEL_ORIGIN: z.string().default('http://localhost:5173'),
+  // Comma-separated allowlist of panel origins (recommended for Vercel previews / multiple domains)
+  PANEL_ORIGINS: z.string().optional(),
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string().min(10),
   META_WA_TOKEN: z.string().min(10),
@@ -29,3 +31,22 @@ const envSchema = z.object({
 });
 
 export const env = envSchema.parse(process.env);
+
+
+// Allowed origins for CORS (express + socket.io). Prefer PANEL_ORIGINS, fallback to PANEL_ORIGIN.
+export const panelOrigins = (() => {
+  const raw = (env.PANEL_ORIGINS ?? env.PANEL_ORIGIN ?? '').toString();
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    // Never allow paths in origins: keep only scheme+host+port
+    .map((s) => {
+      try {
+        const u = new URL(s);
+        return u.origin;
+      } catch {
+        return s;
+      }
+    });
+})();
