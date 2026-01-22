@@ -1,5 +1,4 @@
 import { detectIntent } from './intent.js';
-import { searchProducts } from './catalog.js';
 import {
   buildAskClarify,
   buildWelcome,
@@ -13,12 +12,22 @@ import { isWithinHumanHours } from '../utils/time.js';
 import { prisma } from '../db/prisma.js';
 import { sendInteractiveButtons, sendText } from '../whatsapp/client.js';
 import { requestHandoffIfNeeded } from '../handoff/engine.js';
+import { searchProductsFromJson } from './catalogSearch.js';
 
 type BotResult = { replied: boolean };
 
 // Keep runtime independent from Prisma named exports (ESM/CJS interop).
 type ConversationState = 'BOT_ON' | 'HUMAN_TAKEOVER';
-type LeadStatus = 'NEW' | 'COLD' | 'WARM' | 'HOT_WAITING' | 'HOT' | 'HUMAN' | 'CLOSED_WON' | 'CLOSED_LOST' | 'HOT_LOST';
+type LeadStatus =
+  | 'NEW'
+  | 'COLD'
+  | 'WARM'
+  | 'HOT_WAITING'
+  | 'HOT'
+  | 'HUMAN'
+  | 'CLOSED_WON'
+  | 'CLOSED_LOST'
+  | 'HOT_LOST';
 
 // Minimal shape we need from a Conversation row.
 type ConversationLike = {
@@ -35,6 +44,73 @@ export async function handleIncomingCustomerMessage(
   text: string,
   interactiveId?: string
 ): Promise<BotResult> {
+  // 0) Selection by number (1/2/3...) from lastResults
+  const t = (text || '').trim();
+  if (/^[1-9]\d*$/.test(t)) {
+    const idx = Number(t) - 1;
+
+    const ctxAny: any = (convo.context as any) || {};
+    const ids: string[] = ctxAny.lastResults || [];
+
+    if (idx >= 0 && idx < ids.length) {
+      const itemId = ids[idx];
+
+      const { loadCatalog } = await import('../catalog/catalog.repo.js');
+      const item = loadCatalog().find((x: any) => x.id === itemId);
+
+      if (item) {
+        const price =
+          item.price != null
+            ? `$${Number(item.price).toLocaleString('es-AR')}`
+            : (item.price_raw ?? '');
+
+        const reply =
+          `✅ *${item.name}*\n` +
+          (price ? `💲 ${price}\n` : '') +
+          (item.url ? `🔗 ${item.url}\n` : '') +
+          `\n¿Querés ver más opciones parecidas?`;
+
+        await sendText({ to: convo.waFrom, text: reply, preview_url: true });
+        await prisma.message.create({
+          data: {
+            conversationId: convo.id,
+            direction: 'OUT',
+            sender: 'BOT',
+            type: 'TEXT',
+            text: reply
+          }
+        });
+        await prisma.conversation.update({
+          where: { id: convo.id },
+          data: { lastBotMsgAt: new Date() }
+        });
+
+        return { replied: true };
+      }
+    }
+
+    // If they sent a number but we don't have a previous list stored
+    if (!ids.length) {
+      const fallback =
+        'Decime qué estás buscando (ej: “silla gamer”, “mouse”, “teclado”) y te paso opciones para elegir por número.';
+      await sendText({ to: convo.waFrom, text: fallback, preview_url: false });
+      await prisma.message.create({
+        data: {
+          conversationId: convo.id,
+          direction: 'OUT',
+          sender: 'BOT',
+          type: 'TEXT',
+          text: fallback
+        }
+      });
+      await prisma.conversation.update({
+        where: { id: convo.id },
+        data: { lastBotMsgAt: new Date() }
+      });
+      return { replied: true };
+    }
+  }
+
   const intent = detectIntent(text, interactiveId);
 
   // Update score + status
@@ -73,7 +149,11 @@ export async function handleIncomingCustomerMessage(
     });
 
     await prisma.conversationEvent.create({
-      data: { conversationId: convo.id, kind: 'AUTO_TAKEOVER_REQUEST', payload: { reason: intent.kind, score: newScore } }
+      data: {
+        conversationId: convo.id,
+        kind: 'AUTO_TAKEOVER_REQUEST',
+        payload: { reason: intent.kind, score: newScore }
+      }
     });
 
     await requestHandoffIfNeeded(convo.id);
@@ -114,17 +194,28 @@ export async function handleIncomingCustomerMessage(
         { id: 'BUY', title: 'Quiero comprar' }
       ]
     });
-    await prisma.message.create({ data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: msg } });
+    await prisma.message.create({
+      data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: msg }
+    });
     await prisma.conversation.update({ where: { id: convo.id }, data: { lastBotMsgAt: new Date() } });
     return { replied: true };
   }
 
   if (intent.kind === 'PRICE') {
     const q = (convo.context as any)?.lastQuery || text;
-    const products = await searchProducts(q, 3);
+    const products = searchProductsFromJson(q, 3);
+
+    // store last results for numeric selection
+    const ctxAny: any = (convo.context as any) || {};
+    ctxAny.lastResults = products.map((p: any) => p.id);
+    ctxAny.lastResultsQuery = q;
+    ctxAny.lastResultsAt = new Date().toISOString();
+    await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctxAny } });
+
     const msg = products.length
-      ? `${buildSearchReply(products, q)}\n\n${buildSoftClose()}`
+      ? `${buildSearchReply(products as any, q)}\n\n${buildSoftClose()}`
       : (firstTouch ? buildWelcome() : buildAskClarify());
+
     await sendInteractiveButtons({
       to: convo.waFrom,
       bodyText: msg,
@@ -134,16 +225,28 @@ export async function handleIncomingCustomerMessage(
         { id: 'MORE', title: 'Más opciones' }
       ]
     });
-    await prisma.message.create({ data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: msg } });
+
+    await prisma.message.create({
+      data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: msg }
+    });
     await prisma.conversation.update({ where: { id: convo.id }, data: { lastBotMsgAt: new Date() } });
     return { replied: true };
   }
 
   if (intent.kind === 'SEARCH') {
     const q = intent.query || text;
-    const products = await searchProducts(q, 3);
-    const base = products.length ? buildSearchReply(products, q) : (firstTouch ? buildWelcome() : buildAskClarify());
+    const products = searchProductsFromJson(q, 3);
+
+    // store last results for numeric selection
+    const ctxAny: any = (convo.context as any) || {};
+    ctxAny.lastResults = products.map((p: any) => p.id);
+    ctxAny.lastResultsQuery = q;
+    ctxAny.lastResultsAt = new Date().toISOString();
+    await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctxAny } });
+
+    const base = products.length ? buildSearchReply(products as any, q) : (firstTouch ? buildWelcome() : buildAskClarify());
     const msg = products.length ? `${base}\n\n${buildSoftClose()}` : base;
+
     await sendInteractiveButtons({
       to: convo.waFrom,
       bodyText: msg,
@@ -153,11 +256,16 @@ export async function handleIncomingCustomerMessage(
         { id: 'MORE', title: 'Más' }
       ]
     });
-    await prisma.message.create({ data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: msg } });
+
+    await prisma.message.create({
+      data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: msg }
+    });
+
     await prisma.conversation.update({
       where: { id: convo.id },
       data: { lastBotMsgAt: new Date(), context: { ...(convo.context as any), lastQuery: q } }
     });
+
     return { replied: true };
   }
 
@@ -172,7 +280,9 @@ export async function handleIncomingCustomerMessage(
       { id: 'HUMAN', title: 'Asesor' }
     ]
   });
-  await prisma.message.create({ data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: msg } });
+  await prisma.message.create({
+    data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: msg }
+  });
   await prisma.conversation.update({ where: { id: convo.id }, data: { lastBotMsgAt: new Date() } });
   return { replied: true };
 }

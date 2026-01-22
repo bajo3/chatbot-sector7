@@ -12,11 +12,15 @@ import { metricsRouter } from './routes/metrics.js';
 import { initSocket } from './server/socket.js';
 import { runPeriodicJobs } from './scheduler/jobs.js';
 import { ensureAdminUser } from './bootstrap/ensureAdmin.js';
+import { catalogRouter } from "./catalog/catalog.routes";
 
 const app = express();
 
 // Railway/Vercel sit behind a proxy; helps Express generate correct URLs and trust X-Forwarded-*.
 app.set('trust proxy', 1);
+
+//catalogo
+app.use("/catalog", catalogRouter);
 
 // Capture raw body for signature verification
 app.use(express.json({

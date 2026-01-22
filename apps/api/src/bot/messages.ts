@@ -6,6 +6,16 @@ export type ProductLike = {
   inStock: boolean;
   productUrl?: string | null;
 };
+export type CatalogItemLike = {
+  id: string;
+  name: string;
+  price?: number;
+  price_raw?: string;
+  url?: string;
+  image?: string;
+  category?: string;
+  updated_at?: string;
+};
 
 export function formatProductLine(p: ProductLike, idx: number) {
   const price = `$${p.priceArs.toLocaleString('es-AR')}`;
@@ -14,13 +24,35 @@ export function formatProductLine(p: ProductLike, idx: number) {
   return `${idx}) ${p.title}${stock}\n${price}${link}`;
 }
 
-export function buildSearchReply(products: ProductLike[], query: string) {
+export function buildSearchReply(products: any[], query: string) {
   if (products.length === 0) {
-    return `No encontré algo exacto para “${query}”.\nDecime: marca/modelo o para qué lo necesitás y te paso opciones.`;
+    return `No encontré algo exacto para “${query}”.\nDecime: qué categoría o qué estás buscando y te paso opciones.`;
   }
-  const lines = products.map((p,i)=>formatProductLine(p, i+1)).join('\n\n');
-  return `Te paso 3 opciones de *${query}*:\n\n${lines}\n\nSi querés, te explico cuotas o te paso con un asesor.`;
+
+  const lines = products.map((p, i) => {
+    const price =
+      p?.price != null
+        ? `$${Number(p.price).toLocaleString("es-AR")}`
+        : (p?.price_raw ?? "");
+
+    return `${i + 1}) ${p?.name ?? "Producto"}${price ? ` — ${price}` : ""}`;
+  }).join("\n");
+
+  return `Te paso opciones de *${query}*:\n\n${lines}\n\nRespondé con el *número* y te paso el link + foto.`;
 }
+
+
+function formatARS(n?: number) {
+  if (n == null) return "";
+  return n.toLocaleString("es-AR");
+}
+
+function formatCatalogLine(p: CatalogItemLike, n: number) {
+  const price = p.price != null ? `$${formatARS(p.price)}` : (p.price_raw ?? "");
+  const cat = p.category ? ` (${p.category})` : "";
+  return `${n}) ${p.name}${cat}${price ? ` — ${price}` : ""}`;
+}
+
 
 export function buildInstallmentsReply() {
   return [

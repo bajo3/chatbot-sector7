@@ -1,0 +1,672 @@
+[
+  {
+    "id": "s7-vironracerpu-001",
+    "name": "Silla Gamer FORMULA V - VIRON RACER PU - Black",
+    "price_raw": "$ 519.000,00",
+    "price": 519000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-vironracerpu-001-03-2026-01-20-20:22:05.40357723.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-vironracerpu-001",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.525Z"
+  },
+  {
+    "id": "4711401663126",
+    "name": "Silla Gamer FORMULA V - Viron Breeze Black",
+    "price_raw": "$ 519.000,00",
+    "price": 519000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/4711401663126-02-2026-01-20-20:21:52.588497944.png",
+    "url": "https://sector7gamers.com.ar/productos/4711401663126",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.526Z"
+  },
+  {
+    "id": "S7-Sillagamerraptor-001",
+    "name": "Silla Gamer RAPTOR Throne R1 - Tela - Negra",
+    "price_raw": "$ 351.000,00",
+    "price": 351000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/S7-Sillagamerraptor-001-03-2026-01-06-19:18:17.223019529.png",
+    "url": "https://sector7gamers.com.ar/productos/S7-Sillagamerraptor-001",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.526Z"
+  },
+  {
+    "id": "s7-vcrrazerpublue-001",
+    "name": "Silla Gamer FORMULA V - VC3 RACER PU - Blue",
+    "price_raw": "$ 357.000,00",
+    "price": 357000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-vcrrazerpublue-001-03-2025-12-17-18:12:48.674250868.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-vcrrazerpublue-001",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.526Z"
+  },
+  {
+    "id": "4711401664574",
+    "name": "Silla Gamer FORMULA V - VC3 RACER PU - Pink",
+    "price_raw": "$ 357.000,00",
+    "price": 357000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/4711401664574-02-2025-12-17-18:12:42.736034091.png",
+    "url": "https://sector7gamers.com.ar/productos/4711401664574",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.526Z"
+  },
+  {
+    "id": "9344458317251",
+    "name": "Silla Gamer RAPTOR Throne R1 - Tela - Gris",
+    "price_raw": "$ 351.000,00",
+    "price": 351000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/9344458317251-04-2025-12-03-18:29:56.119304564.png",
+    "url": "https://sector7gamers.com.ar/productos/9344458317251",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.526Z"
+  },
+  {
+    "id": "s7-sillathrones10-001",
+    "name": "Silla Gamer Raptor THRONE S10",
+    "price_raw": "$ 208.500,00",
+    "price": 208500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-sillathrones10-001-02-2025-12-03-18:25:07.888414604.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-sillathrones10-001",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.526Z"
+  },
+  {
+    "id": "KYC10260012460007",
+    "name": "Silla Gamer ThunderX3 EC1 - Black White",
+    "price_raw": "$ 250.500,00",
+    "price": 250500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/KYC10260012460007-02-2025-11-03-16:52:43.072699207.png",
+    "url": "https://sector7gamers.com.ar/productos/KYC10260012460007",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.526Z"
+  },
+  {
+    "id": "KYC1026001E460003",
+    "name": "Silla Gamer ThunderX3 EC1 - Black Orange",
+    "price_raw": "$ 250.500,00",
+    "price": 250500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/KYC1026001E460003-02-2025-11-03-16:52:06.354521948.png",
+    "url": "https://sector7gamers.com.ar/productos/KYC1026001E460003",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.526Z"
+  },
+  {
+    "id": "SN:KYC1026001A460008",
+    "name": "Silla Gamer ThunderX3 EC1 - Baby Pink",
+    "price_raw": "$ 250.500,00",
+    "price": 250500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/SN:KYC1026001A460008-02-2025-09-11-12:23:45.064763723.png",
+    "url": "https://sector7gamers.com.ar/productos/SN:KYC1026001A460008",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.526Z"
+  },
+  {
+    "id": "s7-sillasolarmaxsxgc-001",
+    "name": "Silla Gamer SOLARMAX - sxgc 5005",
+    "price_raw": "$ 238.500,00",
+    "price": 238500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-sillasolarmaxsxgc-001-02-2025-09-05-09:57:27.338064497.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-sillasolarmaxsxgc-001",
+    "category": "sillas",
+    "updated_at": "2026-01-21T17:51:52.526Z"
+  },
+  {
+    "id": "4711279513363",
+    "name": "Nintendo Switch 2",
+    "price_raw": "$ 1.470.000,00",
+    "price": 1470000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/4711279513363-03-2026-01-07-12:15:47.74568126.png",
+    "url": "https://sector7gamers.com.ar/productos/4711279513363",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "S01M45101K1W10827188",
+    "name": "Playstation 5 - Play 5 - Ps5 Slim Estandar con Lectora - 1 TB",
+    "price_raw": "$ 1.260.000,00",
+    "price": 1260000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/S01M45101K1W10827188-01-2025-12-17-16:30:46.019020086.png",
+    "url": "https://sector7gamers.com.ar/productos/S01M45101K1W10827188",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "P27419296M",
+    "name": "Playstation 5 - Play 5 - Ps5 Digital - 1 TB",
+    "price_raw": "$ 1.042.500,00",
+    "price": 1042500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/P27419296M-02-2025-12-17-16:30:40.35869029.png",
+    "url": "https://sector7gamers.com.ar/productos/P27419296M",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "4902370549706",
+    "name": "Nintendo Switch Oled Splatoon Version - Consola",
+    "price_raw": "$ 859.500,00",
+    "price": 859500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/4902370549706-02-2025-12-17-16:28:45.926616311.png",
+    "url": "https://sector7gamers.com.ar/productos/4902370549706",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "4902370548495",
+    "name": "Nintendo Switch Oled Blanca - Consola",
+    "price_raw": "$ 799.500,00",
+    "price": 799500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/4902370548495-01-2025-12-15-10:33:40.51707478.png",
+    "url": "https://sector7gamers.com.ar/productos/4902370548495",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "4711279513417",
+    "name": "Consola Nintendo Switch 2 + Mario Kart World Bundle",
+    "price_raw": "$ 1.605.000,00",
+    "price": 1605000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/4711279513417-01-2025-12-01-20:33:49.04017061.png",
+    "url": "https://sector7gamers.com.ar/productos/4711279513417",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "s7-gamestickm88-001",
+    "name": "Consola GameStick M88 4K Ultra HD – +20.000 Juegos (UNICO CON PS2)",
+    "price_raw": "$ 282.000,00",
+    "price": 282000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-gamestickm88-001-03-2025-11-12-17:10:27.832089034.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-gamestickm88-001",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "s7-gamestickp5pro-001",
+    "name": "Consola Game Stick P5 Pro 128GB | +50.000 Juegos Retro en HD | +47 Emuladores",
+    "price_raw": "$ 108.000,00",
+    "price": 108000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-gamestickp5pro-001-01-2025-10-23-18:22:33.305703893.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-gamestickp5pro-001",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "s7-consolaretro-001",
+    "name": "Consola Retro Arcade 2 Jugadores",
+    "price_raw": "$ 277.500,00",
+    "price": 277500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-consolaretro-001-02-2025-10-11-12:07:46.089509401.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-consolaretro-001",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "2G0YBWMG6202DG",
+    "name": "Casco de Realidad Virtual Meta Quest 3 - 512 GB",
+    "price_raw": "$ 1.500.000,00",
+    "price": 1500000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/2G0YBWMG6202DG-01-2025-08-12-12:31:23.367454816.png",
+    "url": "https://sector7gamers.com.ar/productos/2G0YBWMG6202DG",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "S01G13100K1J11825879",
+    "name": "Casco Realidad Virtual Sony Ps5 PlayStation Vr2",
+    "price_raw": "$ 1.425.000,00",
+    "price": 1425000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/S01G13100K1J11825879-03.png",
+    "url": "https://sector7gamers.com.ar/productos/S01G13100K1J11825879",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "s7-gamestick-001",
+    "name": "Consola Game Stick X2 3D Games - 33.000 juegos",
+    "price_raw": "$ 72.000,00",
+    "price": 72000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-gamestick-001-01-2025-10-23-18:22:18.702138723.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-gamestick-001",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "8938420920177",
+    "name": "Adaptador AC para Nintendo Switch",
+    "price_raw": "$ 42.000,00",
+    "price": 42000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/8938420920177-01.png",
+    "url": "https://sector7gamers.com.ar/productos/8938420920177",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "4902370547672",
+    "name": "Nintendo Switch Lite Blue - Consola",
+    "price_raw": "$ 495.000,00",
+    "price": 495000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/4902370547672-02.png",
+    "url": "https://sector7gamers.com.ar/productos/4902370547672",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "4902370552270",
+    "name": "Nintendo Switch Lite Hyrule Edition - Consola",
+    "price_raw": "$ 516.000,00",
+    "price": 516000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/4902370552270-02-2025-07-27-20:04:15.163904906.png",
+    "url": "https://sector7gamers.com.ar/productos/4902370552270",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "s7-0000000oledvdrio",
+    "name": "VIDRIOS TEMPLADOS PARA NINTENDO SWITCH OLED",
+    "price_raw": "$ 12.000,00",
+    "price": 12000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-0000000oledvdrio-02-2025-08-22-10:07:18.456329343.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-0000000oledvdrio",
+    "category": "consolas",
+    "updated_at": "2026-01-21T17:51:54.596Z"
+  },
+  {
+    "id": "711719534112",
+    "name": "PS4 - God Of War 4",
+    "price_raw": "$ 48.000,00",
+    "price": 48000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/711719534112-01-2026-01-12-16:51:29.54469117.png",
+    "url": "https://sector7gamers.com.ar/productos/711719534112",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "045496594022",
+    "name": "Switch Super Mario 3D World + Bowser's Fury",
+    "price_raw": "$ 105.000,00",
+    "price": 105000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/045496594022-01-2026-01-12-10:32:05.64079479.png",
+    "url": "https://sector7gamers.com.ar/productos/045496594022",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "710425570322",
+    "name": "Ps4 Gta 5 premium edition",
+    "price_raw": "$ 51.000,00",
+    "price": 51000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/710425570322-01-2026-01-12-10:31:37.560740702.png",
+    "url": "https://sector7gamers.com.ar/productos/710425570322",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "711719538363",
+    "name": "Ps4 Gran Turismo 7",
+    "price_raw": "$ 81.000,00",
+    "price": 81000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/711719538363-01-2026-01-12-10:31:18.005973102.png",
+    "url": "https://sector7gamers.com.ar/productos/711719538363",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "722674130646",
+    "name": "Ps5 Dragon Ball Sparking! Zero",
+    "price_raw": "$ 121.500,00",
+    "price": 121500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/722674130646-01-2026-01-12-10:30:56.903907354.png",
+    "url": "https://sector7gamers.com.ar/productos/722674130646",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "045496597092",
+    "name": "Switch The Legend of Zelda Tears of the Kindom",
+    "price_raw": "$ 112.500,00",
+    "price": 112500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/045496597092-01-2026-01-12-10:22:50.795744438.png",
+    "url": "https://sector7gamers.com.ar/productos/045496597092",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "045496590420",
+    "name": "Switch - The Legend Of Zelda - Breath Of The Wild",
+    "price_raw": "$ 105.000,00",
+    "price": 105000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/045496590420-01-2026-01-12-10:22:23.909307425.png",
+    "url": "https://sector7gamers.com.ar/productos/045496590420",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "711719526254",
+    "name": "Ps4 - Until Dawn",
+    "price_raw": "$ 42.000,00",
+    "price": 42000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/711719526254-01-2026-01-12-10:22:05.822312528.png",
+    "url": "https://sector7gamers.com.ar/productos/711719526254",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "045496420628",
+    "name": "Switch Minecraft",
+    "price_raw": "$ 73.500,00",
+    "price": 73500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/045496420628-01-2026-01-07-17:35:56.700782702.png",
+    "url": "https://sector7gamers.com.ar/productos/045496420628",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "045496598044",
+    "name": "Switch - Pokemon Legends ARCEUS",
+    "price_raw": "$ 103.500,00",
+    "price": 103500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/045496598044-01-2026-01-07-17:35:29.155734546.png",
+    "url": "https://sector7gamers.com.ar/productos/045496598044",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "710425578687",
+    "name": "Ps5 Gta 5",
+    "price_raw": "$ 61.500,00",
+    "price": 61500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/710425578687-01-2026-01-07-12:28:08.023017943.png",
+    "url": "https://sector7gamers.com.ar/productos/710425578687",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "662248923338",
+    "name": "Ps4 Dying Light 2 Stay Human",
+    "price_raw": "$ 48.000,00",
+    "price": 48000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/662248923338-01-2026-01-07-12:25:56.87751507.png",
+    "url": "https://sector7gamers.com.ar/productos/662248923338",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "014633750027",
+    "name": "Ps5 Fc 25",
+    "price_raw": "$ 75.000,00",
+    "price": 75000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/014633750027-01-2026-01-06-19:37:58.638950334.png",
+    "url": "https://sector7gamers.com.ar/productos/014633750027",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.638Z"
+  },
+  {
+    "id": "014633750492",
+    "name": "Ps5 - FC 26",
+    "price_raw": "$ 114.000,00",
+    "price": 114000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/014633750492-01-2026-01-06-19:37:45.172784866.png",
+    "url": "https://sector7gamers.com.ar/productos/014633750492",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.639Z"
+  },
+  {
+    "id": "014633750607",
+    "name": "Ps4 - FC 26",
+    "price_raw": "$ 105.000,00",
+    "price": 105000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/014633750607-01-2026-01-06-19:37:31.185631076.png",
+    "url": "https://sector7gamers.com.ar/productos/014633750607",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.639Z"
+  },
+  {
+    "id": "722674122627",
+    "name": "Ps4 Captain Tsubasa",
+    "price_raw": "$ 58.500,00",
+    "price": 58500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/722674122627-01-2025-12-27-12:49:46.63786437.png",
+    "url": "https://sector7gamers.com.ar/productos/722674122627",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.639Z"
+  },
+  {
+    "id": "883929735464",
+    "name": "Ps4 Mortal Kombat 11 Ultimate",
+    "price_raw": "$ 55.500,00",
+    "price": 55500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/883929735464-01-2025-12-27-12:49:36.269629372.png",
+    "url": "https://sector7gamers.com.ar/productos/883929735464",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.639Z"
+  },
+  {
+    "id": "711719537090",
+    "name": "PS4 - Minecraft",
+    "price_raw": "$ 66.000,00",
+    "price": 66000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/711719537090-01-2025-12-22-20:45:28.4868108.png",
+    "url": "https://sector7gamers.com.ar/productos/711719537090",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.639Z"
+  },
+  {
+    "id": "812303010576",
+    "name": "Ps4 - Sniper Elite 4",
+    "price_raw": "$ 51.000,00",
+    "price": 51000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/812303010576-01-2025-12-17-18:15:48.648894347.png",
+    "url": "https://sector7gamers.com.ar/productos/812303010576",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.639Z"
+  },
+  {
+    "id": "711719568605",
+    "name": "Ps5 Spiderman 2",
+    "price_raw": "$ 81.000,00",
+    "price": 81000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/711719568605-01-2025-12-17-18:14:55.843183971.png",
+    "url": "https://sector7gamers.com.ar/productos/711719568605",
+    "category": "juegos",
+    "updated_at": "2026-01-21T17:51:56.639Z"
+  },
+  {
+    "id": "723540566699",
+    "name": "Cargador Notebook universal Time",
+    "price_raw": "$ 21.150,00",
+    "price": 21150,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/723540566699-01-2026-01-19-10:21:27.047309934.png",
+    "url": "https://sector7gamers.com.ar/productos/723540566699",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "87134392541500",
+    "name": "Funda para Nintendo Switch OLED - GXTrust black",
+    "price_raw": "$ 25.500,00",
+    "price": 25500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/87134392541500-03-2026-01-13-19:40:17.198183832.png",
+    "url": "https://sector7gamers.com.ar/productos/87134392541500",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "9344458317060",
+    "name": "Cable de Datos 4 en 1 Multifuncional - 65W Tipo C - 27W Tipo C Lightning - Kelyx",
+    "price_raw": "$ 9.000,00",
+    "price": 9000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/9344458317060-02-2026-01-13-18:47:15.887794676.png",
+    "url": "https://sector7gamers.com.ar/productos/9344458317060",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "8713439257618",
+    "name": "Estuche rígido para Nintendo Switch 2 - GXTrust red",
+    "price_raw": "$ 27.000,00",
+    "price": 27000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/8713439257618-04-2026-01-13-17:16:18.566251451.png",
+    "url": "https://sector7gamers.com.ar/productos/8713439257618",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "116201204340000056",
+    "name": "Funda para Nintendo Switch OLED - GXTrust red",
+    "price_raw": "$ 25.500,00",
+    "price": 25500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/116201204340000056-02-2026-01-13-17:15:08.694302004.png",
+    "url": "https://sector7gamers.com.ar/productos/116201204340000056",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "s7-soporteplaca-001",
+    "name": "Soporte para Placa de Video",
+    "price_raw": "$ 13.500,00",
+    "price": 13500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-soporteplaca-001-03-2026-01-13-11:39:06.545067944.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-soporteplaca-001",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "812366021991",
+    "name": "Controladora ARGB Sentey - C/Control - GS 1000",
+    "price_raw": "$ 15.000,00",
+    "price": 15000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/812366021991-01-2026-01-13-11:38:56.543842308.png",
+    "url": "https://sector7gamers.com.ar/productos/812366021991",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "s7-mochilaraptor-001",
+    "name": "Mochila Raptor Con Usb Para Carga - Multiples Bolsillos Gris",
+    "price_raw": "$ 40.500,00",
+    "price": 40500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-mochilaraptor-001-01-2026-01-12-11:08:08.332675695.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-mochilaraptor-001",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "s7-hubkelyx-001",
+    "name": "Hub USB C - Kelyx - 8 En 1 - Clase C - Hdmi - Sd - Micro sd - X2 USB - Rj45",
+    "price_raw": "$ 24.000,00",
+    "price": 24000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-hubkelyx-001-02-2026-01-12-10:18:16.272872983.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-hubkelyx-001",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "9344458317381",
+    "name": "Cable DISPLAYPORT 1.4  - KELYX - 1.5 Metros - 4K",
+    "price_raw": "$ 12.000,00",
+    "price": 12000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/9344458317381-01-2026-01-12-10:05:52.943630625.png",
+    "url": "https://sector7gamers.com.ar/productos/9344458317381",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "0742832292023",
+    "name": "Cable HDMI - KELYX - 3 Metros - 1080p",
+    "price_raw": "$ 6.750,00",
+    "price": 6750,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/0742832292023-01-2026-01-12-10:05:16.86540339.png",
+    "url": "https://sector7gamers.com.ar/productos/0742832292023",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "0742832292047",
+    "name": "CABLE HDMI 4K 3 METROS",
+    "price_raw": "$ 7.800,00",
+    "price": 7800,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/0742832292047-01-2026-01-12-10:04:35.789243617.png",
+    "url": "https://sector7gamers.com.ar/productos/0742832292047",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "S7-coverter-hdmitovga",
+    "name": "Conversor hdmi a Vga",
+    "price_raw": "$ 9.000,00",
+    "price": 9000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/S7-coverter-hdmitovga-01-2026-01-10-12:08:05.213169664.png",
+    "url": "https://sector7gamers.com.ar/productos/S7-coverter-hdmitovga",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "S7-CARRYDISK",
+    "name": "HDD CASE - CARRY DISK 2.5\"",
+    "price_raw": "$ 15.000,00",
+    "price": 15000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/S7-CARRYDISK-01-2026-01-09-17:48:34.805218503.png",
+    "url": "https://sector7gamers.com.ar/productos/S7-CARRYDISK",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "9344458317084",
+    "name": "Base Cargadora - Raptor Dock - Para Controles Ps5",
+    "price_raw": "$ 45.000,00",
+    "price": 45000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/9344458317084-02-2026-01-06-17:47:24.093842442.png",
+    "url": "https://sector7gamers.com.ar/productos/9344458317084",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "s7-hdmi-3mt",
+    "name": "Cable Hdmi 3 mtrs Mallado",
+    "price_raw": "$ 6.000,00",
+    "price": 6000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-hdmi-3mt-01-2026-01-05-19:35:16.274283414.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-hdmi-3mt",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "798302164802",
+    "name": "Escritorio Gamer - XTECH RED WIZARD - Negro y Rojo",
+    "price_raw": "$ 186.000,00",
+    "price": 186000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/798302164802-01-2026-01-03-11:56:34.931754519.png",
+    "url": "https://sector7gamers.com.ar/productos/798302164802",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "798302091887",
+    "name": "Soporte Doble para Monitor - KlipXtreme KMM-410",
+    "price_raw": "$ 97.500,00",
+    "price": 97500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/798302091887-03-2025-12-31-12:15:30.882984587.png",
+    "url": "https://sector7gamers.com.ar/productos/798302091887",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "s7-14401-001",
+    "name": "Cable DisplayPort - 1.8M - 4k 120hz - 1080p 240hz",
+    "price_raw": "$ 18.000,00",
+    "price": 18000,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/s7-14401-001-01-2025-12-23-18:32:54.627866834.png",
+    "url": "https://sector7gamers.com.ar/productos/s7-14401-001",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  },
+  {
+    "id": "118881000242",
+    "name": "Mini USB Hub",
+    "price_raw": "$ 13.500,00",
+    "price": 13500,
+    "image": "https://sector7-bucket.nyc3.cdn.digitaloceanspaces.com/products/118881000242-01-2025-12-20-13:57:23.957058897.png",
+    "url": "https://sector7gamers.com.ar/productos/118881000242",
+    "category": "accesorios",
+    "updated_at": "2026-01-21T17:51:58.641Z"
+  }
+]
