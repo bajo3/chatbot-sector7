@@ -11,6 +11,7 @@ import { usersRouter } from './routes/users.js';
 import { metricsRouter } from './routes/metrics.js';
 import { initSocket } from './server/socket.js';
 import { runPeriodicJobs } from './scheduler/jobs.js';
+import { ensureAdminUser } from './bootstrap/ensureAdmin.js';
 
 const app = express();
 
@@ -46,11 +47,20 @@ app.use('/api/metrics', metricsRouter);
 const server = http.createServer(app);
 initSocket(server, panelOrigins);
 
-server.listen(env.PORT, () => {
-  console.log(`API listening on ${env.PUBLIC_BASE_URL}`);
-});
+(async () => {
+  try {
+    await ensureAdminUser();
+  } catch (e) {
+    console.error('[bootstrap] ensureAdminUser error', e);
+  }
 
-// Simple periodic loop (production: move to cron/queue/worker)
-setInterval(() => {
-  runPeriodicJobs().catch((e)=>console.error('jobs error', e));
-}, 60_000);
+  server.listen(env.PORT, () => {
+    console.log(`API listening on ${env.PUBLIC_BASE_URL}`);
+  });
+
+  // Simple periodic loop (production: move to cron/queue/worker)
+  setInterval(() => {
+    runPeriodicJobs().catch((e)=>console.error('jobs error', e));
+  }, 60_000);
+})();
+

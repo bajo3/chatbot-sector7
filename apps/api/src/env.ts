@@ -26,7 +26,11 @@ const envSchema = z.object({
   SUPABASE_STORAGE_BUCKET: z.string().optional().or(z.literal('')).default('sector7'),
   
   // Seed credentials (dev convenience). Override in production.
+  ADMIN_SEED_EMAIL: z.string().email().default('admin@sector7.local'),
+  ADMIN_SEED_NAME: z.string().default('Sector7 Admin'),
   ADMIN_SEED_PASSWORD: z.string().min(6).default('admin123456'),
+  ADMIN_SEED_ENABLED: z.coerce.boolean().default(true),
+  ADMIN_SEED_FORCE_RESET: z.coerce.boolean().default(false),
   SELLER_SEED_PASSWORD: z.string().min(6).default('seller123456')
 });
 

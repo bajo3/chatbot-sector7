@@ -12,7 +12,6 @@ export function initSocket(httpServer: any, panelOrigins: string[]) {
         if (!origin) return cb(null, true);
         if (panelOrigins.includes(origin)) return cb(null, true);
         return cb(new Error('CORS blocked'), false);
-
       },
       credentials: true,
       methods: ['GET','POST']
