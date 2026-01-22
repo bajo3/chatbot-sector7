@@ -9,7 +9,11 @@
     "dev:panel": "npm -w apps/panel run dev",
     "dev:all": "npm-run-all -p dev dev:panel dev:worker",
     "build": "npm -w apps/api run build && npm -w apps/panel run build",
-    "dev:worker": "npm -w apps/api run worker"
+    "dev:worker": "npm -w apps/api run worker",
+    "start": "npm -w apps/api start",
+    "start:api": "npm -w apps/api start",
+    "build:api": "npm -w apps/api run build",
+    "build:panel": "npm -w apps/panel run build"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5"
