@@ -92,7 +92,14 @@ async function runJobsTick() {
 
   // Use a transaction-scoped advisory lock so multi-instance deployments don't double-run jobs.
   const followups = await prisma.$transaction(async (tx: any) => {
-    const rows = await tx.$queryRaw`SELECT pg_try_advisory_xact_lock(${k1}, ${k2}) AS locked`;
+    // Postgres overload expects either (int,int) or (bigint). Prisma parameters may be inferred as
+    // bigint, which would miss the (int,int) overload. Force int4 casts to be explicit.
+    const rows = await tx.$queryRaw`
+      SELECT pg_try_advisory_xact_lock(
+        CAST(${k1} AS int4),
+        CAST(${k2} AS int4)
+      ) AS locked
+    `;
     const locked = Array.isArray(rows) ? Boolean((rows as any)[0]?.locked) : false;
     if (!locked) return [];
     return runPeriodicJobsWithDb(tx);
