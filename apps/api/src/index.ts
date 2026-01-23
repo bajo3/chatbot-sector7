@@ -10,9 +10,10 @@ import { conversationsRouter } from './routes/conversations.js';
 import { usersRouter } from './routes/users.js';
 import { metricsRouter } from './routes/metrics.js';
 import { initSocket } from './server/socket.js';
-import { runPeriodicJobs } from './scheduler/jobs.js';
+import { runPeriodicJobsWithDb, scheduleFollowups } from './scheduler/jobs.js';
 import { ensureAdminUser } from './bootstrap/ensureAdmin.js';
 import { catalogRouter } from "./catalog/catalog.routes.js";
+import { prisma } from './db/prisma.js';
 
 const app = express();
 
@@ -70,6 +71,37 @@ app.use((err: any, _req: any, res: any, next: any) => {
 const server = http.createServer(app);
 initSocket(server);
 
+function lockKeyPair(key: string): [number, number] {
+  // Stable 32-bit hash (FNV-1a). We return 2 ints to use pg_try_advisory_xact_lock(int,int)
+  let h = 0x811c9dc5;
+  for (let i = 0; i < key.length; i++) {
+    h ^= key.charCodeAt(i);
+    h = (h * 0x01000193) >>> 0;
+  }
+  // Split into two signed int32 parts (avoid collisions a bit)
+  const a = (h | 0) as number;
+  const b = ((h ^ 0x9e3779b9) | 0) as number;
+  return [a, b];
+}
+
+async function runJobsTick() {
+  // Allow disabling periodic jobs in production if you move them to a dedicated worker.
+  if (!env.ENABLE_JOBS) return;
+
+  const [k1, k2] = lockKeyPair('sector7:periodic_jobs');
+
+  // Use a transaction-scoped advisory lock so multi-instance deployments don't double-run jobs.
+  const followups = await prisma.$transaction(async (tx: any) => {
+    const rows = await tx.$queryRaw`SELECT pg_try_advisory_xact_lock(${k1}, ${k2}) AS locked`;
+    const locked = Array.isArray(rows) ? Boolean((rows as any)[0]?.locked) : false;
+    if (!locked) return [];
+    return runPeriodicJobsWithDb(tx);
+  });
+
+  // Queue/redis operations are performed outside the DB transaction.
+  await scheduleFollowups(followups as any);
+}
+
 (async () => {
   try {
     await ensureAdminUser();
@@ -81,9 +113,9 @@ initSocket(server);
     console.log(`API listening on ${env.PUBLIC_BASE_URL}`);
   });
 
-  // Simple periodic loop (production: move to cron/queue/worker)
+  // Periodic loop (guarded by advisory lock; safe for multi-instance)
   setInterval(() => {
-    runPeriodicJobs().catch((e)=>console.error('jobs error', e));
+    runJobsTick().catch((e) => console.error('jobs error', e));
   }, 60_000);
 })();
 

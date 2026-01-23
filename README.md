@@ -27,6 +27,12 @@ Este repo incluye:
   - notas internas
 - **DB** con Prisma + Supabase Postgres (recomendado)
 
+### Seguridad (panel + realtime)
+- El panel usa **JWT** (login) y lo reusa para:
+  - REST (`Authorization: Bearer ...`)
+  - Socket.IO (handshake con token)
+- Esto evita que el realtime quede público por error en producción.
+
 > ⚠️ Nota sobre “coexistence”: esto se habilita desde el onboarding oficial de Meta (Embedded Signup / flujo oficial). El backend de este repo funciona tanto en modo Cloud API "solo" como en coexistencia (app + API). 
 
 ---
@@ -76,6 +82,12 @@ Copiá los ejemplos:
 
 - `apps/api/.env.example` → `apps/api/.env`
 - `apps/panel/.env.example` → `apps/panel/.env`
+
+> Importante: respetá los nombres de variables del `.env` existente (no renombrar). El proyecto valida envs con Zod y espera esos nombres.
+
+**CORS (panel)**
+- `PANEL_ORIGIN`: un único origen (útil para dev)
+- `PANEL_ORIGINS`: allowlist separada por comas (útil para Vercel Preview + dominio prod)
 
 ### 1.2 Instalar dependencias
 
@@ -147,6 +159,11 @@ npm run dev
 Panel por defecto: http://localhost:5173  
 API por defecto: http://localhost:5050
 
+Login demo (si corrés `npm run seed`):
+- Admin: `admin@sector7.local` / `ADMIN_SEED_PASSWORD`
+- Vendedor: `vendedor1@sector7.local` / `SELLER_SEED_PASSWORD`
+- Vendedor: `vendedor2@sector7.local` / `SELLER_SEED_PASSWORD`
+
 ---
 
 ## 5) Lógica clave (lo que definiste)
@@ -178,15 +195,17 @@ Asegurate de:
 - variable `PUBLIC_BASE_URL` en API para links y logs
 - DB persistente (Postgres) si vas a producción
 
+### Multi-instancia (Railway con 2+ réplicas)
+- Los **jobs periódicos** están protegidos con un **advisory lock** de Postgres, para que no se ejecuten duplicados.
+- Si vas a mover jobs a un worker dedicado, poné `ENABLE_JOBS=false` en el servicio de API.
+
 ---
 
 ## Usuarios demo (seed)
 
-- Admin: `admin@sector7.local` / `admin123`
-- Vendedor: `vendedor1@sector7.local` / `seller123`
-- Vendedor: `vendedor2@sector7.local` / `seller123`
-
-Cambialos.
+Se crean/actualizan con los valores del `.env`:
+- `ADMIN_SEED_PASSWORD`
+- `SELLER_SEED_PASSWORD`
 
 ---
 
