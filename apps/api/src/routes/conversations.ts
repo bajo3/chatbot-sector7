@@ -27,9 +27,21 @@ conversationsRouter.get('/', async (req, res) => {
     where,
     orderBy: [{ updatedAt: 'desc' }],
     take: 200,
-    include: { assignedUser: { select: { id:true, name:true } } }
+    include: {
+      assignedUser: { select: { id: true, name: true } },
+      messages: {
+        orderBy: { timestamp: 'desc' },
+        take: 1,
+        select: { id: true, sender: true, type: true, text: true, mediaUrl: true, timestamp: true, direction: true }
+      }
+    }
   });
-  return res.json(convos);
+  return res.json(
+    convos.map((c: any) => ({
+      ...c,
+      lastMessage: c.messages?.[0] || null
+    }))
+  );
 });
 
 conversationsRouter.get('/:id', async (req, res) => {
@@ -48,6 +60,15 @@ conversationsRouter.get('/:id/messages', async (req, res) => {
     take: 500
   });
   return res.json(messages);
+});
+
+conversationsRouter.get('/:id/events', async (req, res) => {
+  const events = await prisma.conversationEvent.findMany({
+    where: { conversationId: req.params.id },
+    orderBy: { createdAt: 'desc' },
+    take: 200
+  });
+  return res.json(events);
 });
 
 conversationsRouter.post('/:id/takeover', async (req, res) => {

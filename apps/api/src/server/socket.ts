@@ -3,6 +3,7 @@ import { createAdapter } from "@socket.io/redis-adapter";
 import { env, isAllowedPanelOrigin } from "../env.js";
 import type { Server as HttpServer } from "node:http";
 import { createRequire } from "node:module";
+import { verifyJwt } from "../auth/jwt.js";
 
 export let io: Server;
 
@@ -30,6 +31,21 @@ export function initSocket(httpServer: HttpServer) {
     transports: ["websocket", "polling"],
   });
 
+  // Socket auth: only authenticated panel clients should connect.
+  io.use((socket, next) => {
+    try {
+      const token =
+        (socket.handshake.auth as any)?.token ||
+        (socket.handshake.headers?.authorization as string | undefined)?.replace(/^Bearer\s+/i, "");
+      if (!token) return next(new Error("unauthorized"));
+      const payload = verifyJwt(token);
+      (socket.data as any).user = payload;
+      return next();
+    } catch {
+      return next(new Error("unauthorized"));
+    }
+  });
+
   if (env.REDIS_URL) {
     const pubClient = new RedisCtor(env.REDIS_URL, {
       maxRetriesPerRequest: null,
@@ -41,7 +57,7 @@ export function initSocket(httpServer: HttpServer) {
   }
 
   io.on("connection", (socket) => {
-    socket.emit("hello", { ok: true });
+    socket.emit("hello", { ok: true, user: (socket.data as any).user });
   });
 
   return io;

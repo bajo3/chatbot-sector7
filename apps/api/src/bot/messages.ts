@@ -2,21 +2,10 @@
 // We only need a subset of fields to format messages.
 
 /**
- * Anti-loop: prevents repeating the "handoff" message on every user message.
- * Memory-based (resets on server restart).
+ * Anti-loop for handoff messaging.
+ * IMPORTANT: we persist the ack timestamp into conversation.context so it survives restarts.
  */
-type HandoffAck = { ts: number };
-const handoffAckByConv = new Map<string, HandoffAck>();
-
-// How long we consider the handoff "acknowledged" for a conversation
 const HANDOFF_ACK_TTL_MS = 1000 * 60 * 60; // 1 hour
-
-// Simple purge to avoid memory growth
-function purgeExpiredHandoffAcks(now = Date.now()) {
-  for (const [key, val] of handoffAckByConv.entries()) {
-    if (now - val.ts > HANDOFF_ACK_TTL_MS) handoffAckByConv.delete(key);
-  }
-}
 
 export type ProductLike = {
   title: string;
@@ -104,18 +93,18 @@ export function buildSoftClose() {
  * After that, it falls back to a normal bot continuation (ask clarify),
  * to avoid repeating and "getting stuck".
  */
-export function buildHandoffMsg(conversationId: string) {
+export function buildHandoffMsg(conversationId: string, context?: any) {
   const now = Date.now();
-  purgeExpiredHandoffAcks(now);
+  const bot = (context?.bot ??= {});
 
-  const last = handoffAckByConv.get(conversationId);
-
-  if (last && now - last.ts < HANDOFF_ACK_TTL_MS) {
+  const lastAck = typeof bot.handoffAckTs === 'number' ? bot.handoffAckTs : undefined;
+  if (lastAck && now - lastAck < HANDOFF_ACK_TTL_MS) {
     // Already acknowledged recently → do NOT repeat handoff message
     return buildAskClarify();
   }
 
-  handoffAckByConv.set(conversationId, { ts: now });
+  bot.handoffAckTs = now;
+  bot.handoffRequestedAt = bot.handoffRequestedAt ?? new Date(now).toISOString();
 
   return [
     "Perfecto 🙌 te paso con un asesor para cerrarlo rápido.",

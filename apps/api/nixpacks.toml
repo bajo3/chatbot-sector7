@@ -2,12 +2,15 @@
 # In Railway set: Root Directory = apps/api
 
 [phases.install]
-cmds = ["npm install"]
+cmds = [
+  # Ensure Prisma CLI + TypeScript are present during build (Railway often sets production install by default)
+  "npm install --include=dev --no-audit --fund=false"
+]
 
 [phases.build]
 cmds = [
   "npm run build",
-  "npm prune --omit=dev"
+  "npm prune --omit=dev --no-audit --fund=false"
 ]
 
 [start]

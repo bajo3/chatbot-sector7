@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
+import { clearAuth, getUser } from '../lib/auth';
+import { disconnectSocket } from '../lib/socket';
+import { toast } from '../lib/toast';
 
 type Summary = {
   windowDays: number;
@@ -29,23 +32,35 @@ export default function DashboardPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [days, setDays] = useState(7);
 
-  const me = useMemo(() => {
-    try { return JSON.parse(localStorage.getItem('user')||'{}'); } catch { return {}; }
-  }, []);
+  const me = useMemo(() => getUser(), []);
 
   async function load() {
-    const s = await api<Summary>(`/api/metrics/summary?days=${days}`);
-    const u = await api<User[]>(`/api/users`);
-    setSummary(s);
-    setUsers(u);
+    try {
+      const s = await api<Summary>(`/api/metrics/summary?days=${days}`);
+      const u = await api<User[]>(`/api/users`);
+      setSummary(s);
+      setUsers(u);
+    } catch (e: any) {
+      toast(e.message || 'Error cargando dashboard', 'red');
+    }
   }
 
   useEffect(() => { load().catch(console.error); }, [days]);
 
   async function setOnline(isOnline: boolean) {
     if (!me?.id) return;
-    await api(`/api/users/${me.id}/online`, { method:'POST', body: JSON.stringify({ isOnline }) });
-    await load();
+    try {
+      await api(`/api/users/${me.id}/online`, { method:'POST', body: JSON.stringify({ isOnline }) });
+      await load();
+    } catch (e: any) {
+      toast(e.message || 'Error', 'red');
+    }
+  }
+
+  function logout() {
+    clearAuth();
+    disconnectSocket();
+    nav('/login');
   }
 
   return (
@@ -57,7 +72,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex gap-2">
           <Button tone="slate" onClick={()=>nav('/')}>Inbox</Button>
-          <Button tone="slate" onClick={()=>{ localStorage.removeItem('token'); localStorage.removeItem('user'); nav('/login'); }}>Salir</Button>
+          <Button tone="slate" onClick={logout}>Salir</Button>
         </div>
       </div>
 

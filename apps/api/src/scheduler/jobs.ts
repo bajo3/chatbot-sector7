@@ -61,10 +61,13 @@ async function retakeUnclaimedHotLeads() {
       });
       await prisma.conversationEvent.create({ data: { conversationId: c.id, kind:'AUTO_RETAKE_UNCLAIMED_HOT_LEAD', payload: { minutes: mins } } });
 
-// Optional follow-up job (requires Redis)
-if (env.ENABLE_JOBS && env.REDIS_URL) {
-  // Reminder in 2 hours (tune as needed)
-  await scheduleFollowup(c.id, 'HOT_LOST_REMINDER', 2 * 60 * 60 * 1000).catch(()=>{});
-}    }
+      // Optional follow-up job (requires Redis)
+      if (env.ENABLE_JOBS && env.REDIS_URL) {
+        // Reminder in 2 hours (tune as needed)
+        await scheduleFollowup(c.id, 'HOT_LOST_REMINDER', 2 * 60 * 60 * 1000).catch(() => {
+          // best-effort
+        });
+      }
+    }
   }
 }

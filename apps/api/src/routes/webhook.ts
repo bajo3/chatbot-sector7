@@ -30,7 +30,7 @@ webhookRouter.post('/', async (req, res) => {
     return res.status(401).json({ error: 'Invalid signature' });
   }
 
-  // ACK fast
+  // ACK fast (Meta retries aggressively if we don't answer quickly)
   res.sendStatus(200);
 
   try {
@@ -40,32 +40,26 @@ webhookRouter.post('/', async (req, res) => {
     const change = entry?.changes?.[0];
     const value = change?.value;
 
-    // messages
+    // --- messages ---
     const messages = value?.messages || [];
     for (const m of messages) {
-      const from = m.from; // customer WA ID
-      const type = m.type;
-      const waMessageId = m.id;
+      const from: string | undefined = m?.from; // customer WA ID
+      const type: string | undefined = m?.type;
+      const waMessageId: string | undefined = m?.id;
+      if (!from || !type || !waMessageId) continue;
 
       // idempotency: ignore if already stored
       const exists = await prisma.message.findUnique({ where: { waMessageId } });
       if (exists) continue;
 
-      let text: string = '';
-      let interactiveId: string | undefined;
-
-      if (type === 'text') text = m.text?.body || '';
-      if (type === 'interactive') {
-        // button reply
-        const br = m.interactive?.button_reply;
-        if (br?.id) interactiveId = br.id;
-        text = br?.title || 'interactive';
-      }
+      const parsed = parseIncomingMessage(m);
 
       // Upsert conversation by waFrom (customer)
+      // IMPORTANT: don't force LeadStatus.NEW here.
+      // Some DBs may not have the NEW enum value applied yet (Postgres enum add-value gotcha).
       const convo = await prisma.conversation.upsert({
         where: { waFrom: from },
-        create: { waFrom: from, state: 'BOT_ON', leadStatus: 'NEW' },
+        create: { waFrom: from, state: 'BOT_ON' },
         update: { updatedAt: new Date() }
       });
 
@@ -74,8 +68,9 @@ webhookRouter.post('/', async (req, res) => {
           conversationId: convo.id,
           direction: 'IN',
           sender: 'CUSTOMER',
-          type: type === 'text' || type === 'interactive' ? 'TEXT' : 'SYSTEM',
-          text: text || `[${type}]`,
+          type: parsed.messageType,
+          text: parsed.text,
+          mediaUrl: parsed.mediaUrl,
           waMessageId
         }
       });
@@ -86,31 +81,27 @@ webhookRouter.post('/', async (req, res) => {
       });
 
       // realtime notify panel
-      io.emit('message:new', { conversationId: convo.id });
+      safeEmit('message:new', { conversationId: convo.id });
 
-      // If human takeover: bot stays silent
+      // Always hand control to the bot engine.
+      // The engine itself enforces:
+      // - botPausedUntil
+      // - HUMAN_TAKEOVER (silent, with reversible resume prompt)
       const current = await prisma.conversation.findUnique({ where: { id: convo.id } });
       if (!current) continue;
 
-      const paused = current.botPausedUntil && new Date(current.botPausedUntil) > new Date();
-
-      if (current.state === 'HUMAN_TAKEOVER' || paused) {
-        await prisma.conversationEvent.create({
-          data: { conversationId: convo.id, kind: paused ? 'BOT_SILENCED_PAUSED' : 'BOT_SILENCED_HUMAN_TAKEOVER', payload: { pausedUntil: current.botPausedUntil } }
-        });
-        continue;
-      }
-
-      await handleIncomingCustomerMessage(current, text, interactiveId);
-      io.emit('conversation:updated', { conversationId: convo.id });
+      await handleIncomingCustomerMessage(current as any, parsed.text ?? '', parsed.interactiveId);
+      safeEmit('conversation:updated', { conversationId: convo.id });
     }
 
-    // statuses
+    // --- statuses ---
     const statuses = value?.statuses || [];
     for (const s of statuses) {
+      const conversationId = await findConversationIdForStatus(s);
+      if (!conversationId) continue;
       await prisma.conversationEvent.create({
-        data: { conversationId: (await findConversationIdByToOrFrom(s.recipient_id)) || undefined as any, kind:'WA_STATUS', payload: s }
-      }).catch(()=>{});
+        data: { conversationId, kind: 'WA_STATUS', payload: s }
+      });
     }
 
   } catch (e) {
@@ -118,8 +109,64 @@ webhookRouter.post('/', async (req, res) => {
   }
 });
 
-async function findConversationIdByToOrFrom(_recipientId: string): Promise<string | null> {
-  // recipient_id is typically the business number; not useful to map to a conversation.
-  // left here for future improvements.
+function safeEmit(event: string, payload: any) {
+  try {
+    io?.emit?.(event, payload);
+  } catch {
+    // ignore websocket errors from webhook path
+  }
+}
+
+function parseIncomingMessage(m: any): {
+  text: string | null;
+  interactiveId?: string;
+  messageType: 'TEXT' | 'IMAGE' | 'AUDIO' | 'SYSTEM';
+  mediaUrl?: string | null;
+} {
+  const type = m?.type;
+
+  // text
+  if (type === 'text') {
+    return { text: m?.text?.body ?? '', messageType: 'TEXT' };
+  }
+
+  // interactive (buttons / list)
+  if (type === 'interactive') {
+    const br = m?.interactive?.button_reply;
+    const lr = m?.interactive?.list_reply;
+    const id = br?.id ?? lr?.id;
+    const title = br?.title ?? lr?.title ?? 'interactive';
+    return { text: title, interactiveId: id, messageType: 'TEXT' };
+  }
+
+  // media placeholders (store text so the bot can react)
+  if (type === 'image') {
+    return { text: '[imagen]', messageType: 'IMAGE', mediaUrl: null };
+  }
+  if (type === 'audio' || type === 'voice') {
+    return { text: '[audio]', messageType: 'AUDIO', mediaUrl: null };
+  }
+
+  return { text: `[${type ?? 'unknown'}]`, messageType: 'SYSTEM' };
+}
+
+async function findConversationIdForStatus(s: any): Promise<string | null> {
+  // Preferred: match by WA message id (status.id)
+  const statusId: string | undefined = s?.id;
+  if (statusId) {
+    const msg = await prisma.message.findUnique({
+      where: { waMessageId: statusId },
+      select: { conversationId: true }
+    });
+    if (msg?.conversationId) return msg.conversationId;
+  }
+
+  // Fallback: recipient_id is often the customer WA ID for outbound statuses
+  const recipient: string | undefined = s?.recipient_id;
+  if (recipient) {
+    const convo = await prisma.conversation.findUnique({ where: { waFrom: recipient }, select: { id: true } });
+    if (convo?.id) return convo.id;
+  }
+
   return null;
 }
