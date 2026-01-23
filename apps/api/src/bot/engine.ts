@@ -2,16 +2,13 @@ import { detectIntent } from './intent.js';
 import {
   buildAskClarify,
   buildWelcome,
-  buildSoftClose,
-  buildAfterHoursCapture,
-  buildHandoffMsg,
+  buildSoftClose,  buildHandoffMsg,
   buildInstallmentsReply,
   buildSearchReply
-} from './messages.js';
-import { isWithinHumanHours } from '../utils/time.js';
+} from './messages.js'; 
 import { prisma } from '../db/prisma.js';
 import { sendInteractiveButtons, sendText } from '../whatsapp/client.js';
-import { requestHandoffIfNeeded } from '../handoff/engine.js';
+import { tryAssignSeller } from '../handoff/engine.js';
 import { searchProductsFromJson } from './catalogSearch.js';
 
 type BotResult = { replied: boolean };
@@ -116,7 +113,6 @@ export async function handleIncomingCustomerMessage(
   // Update score + status
   const newScore = Math.max(0, (convo.intentScore ?? 0) + intent.scoreDelta);
   const leadStatus = computeLeadStatus(newScore, convo.leadStatus as LeadStatus);
-  const withinHours = isWithinHumanHours(new Date());
 
   // Save context
   const ctx: any = (convo.context as any) || {};
@@ -131,56 +127,39 @@ export async function handleIncomingCustomerMessage(
     data: { intentScore: newScore, leadStatus, context: ctx, lastCustomerMsgAt: new Date() }
   });
 
-  // Handoff logic: explicit human or buy signal or score threshold
-  const shouldHandoff = intent.kind === 'HUMAN' || intent.kind === 'BUY_SIGNAL' || newScore >= 6;
 
-  if (shouldHandoff && withinHours) {
-    const handoffText = buildHandoffMsg();
+// Handoff logic (NO horarios):
+// - Bot responde siempre
+// - Si el cliente pide asesor o hay señal de compra, intentamos asignar un vendedor online (si hay)
+// - No cambiamos el estado a HUMAN_TAKEOVER automáticamente (eso se hace solo cuando un humano toma el chat)
+const shouldHandoff = intent.kind === 'HUMAN' || intent.kind === 'BUY_SIGNAL' || newScore >= 6;
 
-    // send a short handoff message, then request takeover
-    await sendText({ to: convo.waFrom, text: handoffText, preview_url: false });
-    await prisma.message.create({
-      data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: handoffText }
-    });
+if (shouldHandoff) {
+  // Intentar asignar un vendedor si hay alguno online (no silencia al bot)
+  await tryAssignSeller(convo.id);
 
-    await prisma.conversation.update({
-      where: { id: convo.id },
-      data: { state: 'HUMAN_TAKEOVER', leadStatus: 'HUMAN', lastBotMsgAt: new Date() }
-    });
+  const handoffText = buildHandoffMsg();
+  await sendText({ to: convo.waFrom, text: handoffText, preview_url: false });
+  await prisma.message.create({
+    data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: handoffText }
+  });
 
-    await prisma.conversationEvent.create({
-      data: {
-        conversationId: convo.id,
-        kind: 'AUTO_TAKEOVER_REQUEST',
-        payload: { reason: intent.kind, score: newScore }
-      }
-    });
+  await prisma.conversationEvent.create({
+    data: {
+      conversationId: convo.id,
+      kind: 'HANDOFF_REQUESTED',
+      payload: { reason: intent.kind, score: newScore }
+    }
+  });
 
-    await requestHandoffIfNeeded(convo.id);
-    return { replied: true };
-  }
+  // Seguimos en BOT_ON para que el bot no se silencie
+  await prisma.conversation.update({
+    where: { id: convo.id },
+    data: { lastBotMsgAt: new Date(), leadStatus: 'HOT' }
+  });
 
-  if (shouldHandoff && !withinHours) {
-    // after hours: keep bot, capture data, mark HOT_WAITING
-    const msg = buildAfterHoursCapture();
-    await sendInteractiveButtons({
-      to: convo.waFrom,
-      bodyText: msg,
-      buttons: [
-        { id: 'INSTALLMENTS', title: 'Cuotas' },
-        { id: 'HUMAN', title: 'Asesor (mañana)' },
-        { id: 'MORE', title: 'Ver catálogo' }
-      ]
-    });
-    await prisma.message.create({
-      data: { conversationId: convo.id, direction: 'OUT', sender: 'BOT', type: 'TEXT', text: msg }
-    });
-    await prisma.conversation.update({
-      where: { id: convo.id },
-      data: { lastBotMsgAt: new Date(), leadStatus: 'HOT_WAITING' }
-    });
-    return { replied: true };
-  }
+  return { replied: true };
+}
 
   // Normal conversational responses
   if (intent.kind === 'INSTALLMENTS') {

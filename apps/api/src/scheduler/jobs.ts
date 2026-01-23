@@ -1,7 +1,7 @@
 import { env } from '../env.js';
 import { scheduleFollowup } from '../queue/schedule.js';
 import { prisma } from '../db/prisma.js';
-import { minutesBetween, isWithinHumanHours } from '../utils/time.js';
+import { minutesBetween } from '../utils/time.js';
 
 type ConversationState = 'BOT_ON' | 'HUMAN_TAKEOVER';
 type LeadStatus = 'NEW' | 'COLD' | 'WARM' | 'HOT_WAITING' | 'HOT' | 'HUMAN' | 'CLOSED_WON' | 'CLOSED_LOST' | 'HOT_LOST';
@@ -65,13 +65,6 @@ async function retakeUnclaimedHotLeads() {
 if (env.ENABLE_JOBS && env.REDIS_URL) {
   // Reminder in 2 hours (tune as needed)
   await scheduleFollowup(c.id, 'HOT_LOST_REMINDER', 2 * 60 * 60 * 1000).catch(()=>{});
-}
-
-
-      // If it's outside hours, keep status HOT_LOST but bot can still answer next message.
-      if (!isWithinHumanHours(new Date())) {
-        await prisma.conversationEvent.create({ data: { conversationId: c.id, kind:'OUT_OF_HOURS_WHEN_RETAKE', payload: {} } });
-      }
-    }
+}    }
   }
 }
