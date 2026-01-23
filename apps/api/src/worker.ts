@@ -1,4 +1,4 @@
-import { Worker } from 'bullmq';
+ import { Worker } from 'bullmq';
 import { env } from './env.js';
 import { createRedisConnection } from './queue/redis.js';
 import { prisma } from './db/prisma.js';
