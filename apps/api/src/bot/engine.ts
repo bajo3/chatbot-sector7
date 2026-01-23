@@ -327,14 +327,12 @@ export async function handleIncomingCustomerMessage(
     const firstTouch = !ctx.welcomedAt;
     if (firstTouch) ctx.welcomedAt = now.toISOString();
     await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctx, lastCustomerMsgAt: now } });
-    const msg = firstTouch ? buildWelcome() : '¡Hola! ¿Qué estás buscando?';
-    await sendAndStoreButtons(convo.id, convo.waFrom, msg, [
-      { id: 'PICK:ps5', title: 'PS5' },
-      { id: 'PICK:silla gamer', title: 'Silla gamer' },
-      { id: 'HUMAN', title: 'Asesor' }
-    ]);
+
+    const msg = firstTouch ? buildWelcome() : "¡Hola! ¿Qué estás buscando hoy?";
+    await sendAndStoreText(convo.id, convo.waFrom, msg, false);
     return { replied: true };
   }
+
 
   if (meta.kind === 'NEGATIVE') {
     // Keep it human: acknowledge and offer alternatives.
@@ -450,32 +448,22 @@ export async function handleIncomingCustomerMessage(
   const frustrationScore = bot.frustration.score ?? 0;
   const shouldHandoff =
     intent.kind === 'HUMAN' ||
-    intent.kind === 'BUY_SIGNAL' ||
-    newScore >= 7 ||
-    frustrationScore >= 4;
+    intent.kind === 'BUY_SIGNAL';
 
-  if (shouldHandoff) {
-    await tryAssignSeller(convo.id);
 
-    const handoffText = buildHandoffMsg(convo.id, ctx);
-    await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctx } });
-
-    await sendAndStoreText(convo.id, convo.waFrom, handoffText, false);
-
-    await prisma.conversationEvent.create({
-      data: {
-        conversationId: convo.id,
-        kind: 'HANDOFF_REQUESTED',
-        payload: {
-          reason: intent.kind,
-          score: newScore,
-          frustration: frustrationScore
-        }
-      }
-    });
-    // Keep BOT_ON: bot continues unless a human takes over
+  if (!shouldHandoff && frustrationScore >= 4) {
+    await sendAndStoreButtons(
+      convo.id,
+      convo.waFrom,
+      "¿Querés que te atienda un asesor o sigo yo con opciones?",
+      [
+        { id: "assist_human", title: "Hablar con asesor" },
+        { id: "assist_bot", title: "Seguí vos" }
+      ]
+    );
     return { replied: true };
   }
+
 
   // Clarify/ambiguity handling
   const lastQuery = bot.short.lastQuery || (ctx.lastQuery as any);

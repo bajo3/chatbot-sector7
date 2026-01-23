@@ -72,17 +72,18 @@ export function buildInstallmentsReply() {
 }
 
 export function buildAskClarify() {
-  return "¿Qué estás buscando? Si me decís *modelo / marca* o para qué lo necesitás, te paso opciones y precios.";
+  return "Dale 🙂 ¿Qué estás buscando? Si me decís marca/modelo o para qué lo necesitás, te paso opciones y precios.";
 }
 
 export function buildWelcome() {
   return [
     "¡Hola! Soy el asistente de Sector 7 👋",
-    "Decime qué querés ver y te paso opciones al toque.",
+    "¿En qué te puedo ayudar hoy?",
     "",
-    "Ejemplos: *PS5*, *silla gamer*, *notebook*, *auriculares*, *monitor*.",
+    "Decime qué estás buscando (ej: *HDMI*, *PS5*, *monitor*, *silla gamer*).",
   ].join("\n");
 }
+
 
 export function buildSoftClose() {
   return "¿Querés que te lo arme para contado o en cuotas?";
