@@ -2,6 +2,9 @@
 
 ## 2026-01-23 – Release candidate (hardening transversal)
 
+### Hotfix
+- Fix build TypeScript (`TS2779`) en `buildHandoffMsg`: se eliminó la asignación con optional chaining (`context?.bot ??= {}`) y se reemplazó por inicialización segura del objeto.
+
 ### API / Backend
 
 #### Webhook (WhatsApp Cloud API)

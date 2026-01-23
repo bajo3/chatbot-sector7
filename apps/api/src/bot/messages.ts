@@ -95,7 +95,11 @@ export function buildSoftClose() {
  */
 export function buildHandoffMsg(conversationId: string, context?: any) {
   const now = Date.now();
-  const bot = (context?.bot ??= {});
+  // Optional chaining cannot be used on the LHS of an assignment in TypeScript.
+  // We still want to mutate the passed-in context object when provided.
+  const root: any = context ?? {};
+  if (!root.bot || typeof root.bot !== 'object') root.bot = {};
+  const bot = root.bot as any;
 
   const lastAck = typeof bot.handoffAckTs === 'number' ? bot.handoffAckTs : undefined;
   if (lastAck && now - lastAck < HANDOFF_ACK_TTL_MS) {
