@@ -92,7 +92,7 @@ async function runJobsTick() {
 
   // Use a transaction-scoped advisory lock so multi-instance deployments don't double-run jobs.
   const followups = await prisma.$transaction(async (tx: any) => {
-const rows = await tx.$queryRaw`SELECT pg_try_advisory_xact_lock(${k1}::int, ${k2}::int) AS locked`;
+    const rows = await tx.$queryRaw`SELECT pg_try_advisory_xact_lock(${k1}, ${k2}) AS locked`;
     const locked = Array.isArray(rows) ? Boolean((rows as any)[0]?.locked) : false;
     if (!locked) return [];
     return runPeriodicJobsWithDb(tx);

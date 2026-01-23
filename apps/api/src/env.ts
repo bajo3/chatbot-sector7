@@ -19,6 +19,9 @@ const envSchema = z.object({
   UNCLAIMED_HOT_LEAD_MINUTES: z.coerce.number().default(60),
   HUMAN_WORKING_HOURS: z.string().default('Mon-Fri 09:00-18:00'),
   OPENAI_API_KEY: z.string().optional().or(z.literal('')).default(''),
+  // LLM models (hybrid): reasoning for intent/query, chat for final wording
+  OPENAI_MODEL_REASONING: z.string().optional().or(z.literal('')).default('gpt-4.1'),
+  OPENAI_MODEL_CHAT: z.string().optional().or(z.literal('')).default('gpt-4o-mini'),
   REDIS_URL: z.string().optional().or(z.literal('')).default(''),
   ENABLE_JOBS: z.coerce.boolean().default(true),
   SUPABASE_URL: z.string().optional().or(z.literal('')).default(''),

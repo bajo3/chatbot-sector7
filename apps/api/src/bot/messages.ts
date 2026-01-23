@@ -34,7 +34,16 @@ export function formatProductLine(p: ProductLike, idx: number) {
 
 export function buildSearchReply(products: any[], query: string) {
   if (products.length === 0) {
-    return `No encontré algo exacto para “${query}”.\nDecime: qué categoría o qué estás buscando y te paso opciones.`;
+    const q = (query || "").toLowerCase();
+    // Mensaje más honesto cuando el usuario pide algo que no está cargado en el catálogo
+    if (/(auric|auricular|auriculares|headset|cascos)/i.test(q)) {
+      return [
+        `No me figura *auriculares* en el catálogo que tengo cargado ahora.`,
+        `Si querés, decime otra cosa para buscar (ej: *PS5*, *Nintendo Switch*, *silla gamer*, *cables HDMI*, *juegos*).`
+      ].join("\n");
+    }
+
+    return `No encontré algo exacto para “${query}”.\nDecime *qué categoría* o un *modelo/marca* y te paso opciones.`;
   }
 
   const lines = products
@@ -66,27 +75,27 @@ function formatCatalogLine(p: CatalogItemLike, n: number) {
 
 export function buildInstallmentsReply() {
   return [
-    "Sí, tenemos cuotas.",
-    "Decime qué producto te interesa y tu idea (monto / cantidad de cuotas) y te lo calculo rápido.",
+    "Sí, trabajamos con *tarjetas Visa y Mastercard*.",
+    "Tenemos *3 y 6 cuotas sin interés* (según banco/promos vigentes).",
+    "Pasame qué producto te interesa y si preferís *3* o *6* y te guío."
   ].join(" ");
 }
 
 export function buildAskClarify() {
-  return "Dale 🙂 ¿Qué estás buscando? Si me decís marca/modelo o para qué lo necesitás, te paso opciones y precios.";
+  return "¿Qué estás buscando? Si me decís *modelo / marca* o para qué lo necesitás, te paso opciones y precios.";
 }
 
 export function buildWelcome() {
   return [
     "¡Hola! Soy el asistente de Sector 7 👋",
-    "¿En qué te puedo ayudar hoy?",
+    "Decime qué querés ver y te paso opciones al toque.",
     "",
-    "Decime qué estás buscando (ej: *HDMI*, *PS5*, *monitor*, *silla gamer*).",
+    "Ejemplos: *PS5*, *Nintendo Switch*, *silla gamer*, *cable HDMI*, *juegos*.",
   ].join("\n");
 }
 
-
 export function buildSoftClose() {
-  return "¿Querés que te lo arme para contado o en cuotas?";
+  return "Si querés, te lo armo *contado* o *en cuotas* (3/6 sin interés con Visa/Mastercard).";
 }
 
 /**
