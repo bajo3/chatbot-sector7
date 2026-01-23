@@ -57,7 +57,10 @@ function wordFuzzyHit(word: string, text: string): boolean {
   // fuzzy: comparar contra tokens del nombre/categoría
   const tokens = text.split(/\s+/).filter(Boolean);
   const wlen = word.length;
-  const limit = wlen >= 10 ? 3 : wlen >= 7 ? 2 : wlen >= 5 ? 1 : 0;
+  // Allow a tiny amount of fuzziness.
+  // WhatsApp queries often include short typos (e.g. "illa" vs "silla") so we
+  // permit distance=1 for length>=4.
+  const limit = wlen >= 10 ? 3 : wlen >= 7 ? 2 : wlen >= 5 ? 1 : wlen >= 4 ? 1 : 0;
   if (limit === 0) return false;
 
   for (const t of tokens) {
@@ -65,6 +68,24 @@ function wordFuzzyHit(word: string, text: string): boolean {
     if (levenshtein(word, t, limit) <= limit) return true;
   }
   return false;
+}
+
+function expandSynonyms(words: string[]): string[] {
+  const out = new Set<string>(words);
+  const has = (w: string) => out.has(w);
+
+  // Lightweight synonym/alias expansion tuned for electronics retail in AR.
+  // Keep it conservative to avoid noise.
+  const addAll = (arr: string[]) => arr.forEach((x) => x && out.add(x));
+
+  if (has('consola') || has('consolas')) addAll(['ps5', 'playstation', 'xbox', 'nintendo', 'switch']);
+  if (has('nintendo') || has('nintendos') || has('nintento')) addAll(['nintendo', 'switch']);
+  if (has('play') || has('playstation')) addAll(['ps5', 'playstation']);
+  if (has('joystick') || has('control')) addAll(['joystick', 'control', 'dualshock', 'dualsense']);
+  if (has('auriculares') || has('auricular') || has('headset') || has('cascos')) addAll(['auriculares', 'headset']);
+  if (has('silla') || has('gamer')) addAll(['silla', 'gamer']);
+
+  return Array.from(out);
 }
 
 function parsePriceArs(it: CatalogItem): number | null {
@@ -88,6 +109,9 @@ export function searchProductsFromJson(query: string, limit = 3, opts: SearchOpt
 
   const items = loadCatalog();
 
+  const baseWords = q.split(/\s+/).filter(Boolean);
+  const words = expandSynonyms(baseWords);
+
   const scored = items
     .map((it) => {
       const name = norm(it.name ?? "");
@@ -100,7 +124,6 @@ export function searchProductsFromJson(query: string, limit = 3, opts: SearchOpt
       if (q && id.includes(q)) score += 1;
 
       // extra: split query words (incluye fuzzy para typos)
-      const words = q.split(/\s+/).filter(Boolean);
       if (words.length) {
         const hit = words.reduce((acc, w) => acc + (wordFuzzyHit(w, name) ? 1 : 0), 0);
         const hitCat = words.reduce((acc, w) => acc + (wordFuzzyHit(w, cat) ? 1 : 0), 0);
