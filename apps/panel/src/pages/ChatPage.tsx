@@ -166,7 +166,7 @@ export default function ChatPage() {
       text: trimmed,
       timestamp: new Date().toISOString()
     };
-    setMsgs((prev) => [...prev, optimistic]);
+    setMsgs((prev: Msg[]) => [...prev, optimistic]);
     setText('');
     setStickToBottom(true);
 
@@ -180,7 +180,7 @@ export default function ChatPage() {
     } catch (e: any) {
       toast(e.message || 'Error enviando mensaje', 'red');
       // revert optimistic if failed
-      setMsgs((prev) => prev.filter((m) => m.id !== optimistic.id));
+      setMsgs((prev: Msg[]) => prev.filter((m: Msg) => m.id !== optimistic.id));
       setText(trimmed);
     } finally {
       setSending(false);

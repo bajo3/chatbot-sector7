@@ -7,10 +7,10 @@ export default function ToastHost() {
 
   useEffect(() => {
     return onToast((t) => {
-      setItems((prev) => [t, ...prev].slice(0, 4));
+      setItems((prev: ToastItem[]) => [t, ...prev].slice(0, 4));
       // auto-remove
       setTimeout(() => {
-        setItems((prev) => prev.filter((x) => x.id !== t.id));
+        setItems((prev: ToastItem[]) => prev.filter((x: ToastItem) => x.id !== t.id));
       }, 4000);
     });
   }, []);
@@ -39,7 +39,7 @@ export default function ToastHost() {
             <div className="text-sm leading-snug whitespace-pre-wrap">{t.message}</div>
             <button
               className="text-xs opacity-70 hover:opacity-100"
-              onClick={() => setItems((prev) => prev.filter((x) => x.id !== t.id))}
+              onClick={() => setItems((prev: ToastItem[]) => prev.filter((x: ToastItem) => x.id !== t.id))}
             >
               ✕
             </button>

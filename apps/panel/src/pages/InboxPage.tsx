@@ -224,7 +224,7 @@ export default function InboxPage() {
         </div>
 
         <div className="max-h-[70vh] overflow-auto">
-          {items.map((c) => {
+          {items.map((c: Convo) => {
             const paused = c.botPausedUntil && new Date(c.botPausedUntil).getTime() > Date.now();
             const unread = isUnread(c);
             return (
