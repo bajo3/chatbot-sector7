@@ -530,13 +530,20 @@ export async function handleIncomingCustomerMessage(
 
   // Handoff triggers
   const frustrationScore = bot.frustration.score ?? 0;
-  const shouldHandoff =
+
+  // Assign seller silently when the convo gets "hot", but keep the bot running.
+  const shouldAssignSellerSilently = newScore >= 7 || frustrationScore >= 4;
+  if (shouldAssignSellerSilently) {
+    await tryAssignSeller(convo.id);
+  }
+
+  // Show handoff only when user asks for a human or signals purchase/reservation.
+  const shouldShowHandoff =
     intent.kind === 'HUMAN' ||
     intent.kind === 'BUY_SIGNAL' ||
-    newScore >= 7 ||
-    frustrationScore >= 4;
+    frustrationScore >= 6;
 
-  if (shouldHandoff) {
+  if (shouldShowHandoff) {
     await tryAssignSeller(convo.id);
 
     const handoffText = buildHandoffMsg(convo.id, ctx);
