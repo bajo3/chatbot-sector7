@@ -50,6 +50,8 @@ type BotMemory = {
     recentCustomer?: { t: string; ts: string }[];
     clarifyLoops?: number;
     moreCount?: number;
+    wantsInstallments?: boolean;
+    lastSoftCloseAt?: string;
   };
   long?: {
     name?: string;
@@ -67,6 +69,12 @@ type BotMemory = {
   handoffRequestedAt?: string;
   lastResumePromptAt?: string;
 };
+
+function shouldSoftClose(bot: BotMemory, now: Date) {
+  const last = parseIsoDate(bot.short?.lastSoftCloseAt);
+  if (!last) return true;
+  return minutesBetween(now, last) >= 8;
+}
 
 function ensureObj(x: unknown): any {
   if (x && typeof x === 'object') return x as any;
@@ -314,12 +322,12 @@ export async function handleIncomingCustomerMessage(
   // Quick "thanks" / greeting flows (keep them short)
   if (meta.kind === 'THANKS') {
     await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctx, lastCustomerMsgAt: now } });
-    const msg = bot.short.lastQuery ? `De una 🙌 ¿Querés que te pase más opciones de *${bot.short.lastQuery}* o buscás otra cosa?` : 'De una 🙌 ¿Qué estás buscando?';
-    await sendAndStoreButtons(convo.id, convo.waFrom, msg, [
-      { id: bot.short.lastQuery ? 'MORE' : 'PICK:ps5', title: bot.short.lastQuery ? 'Más opciones' : 'PS5' },
-      { id: 'PICK:silla gamer', title: 'Silla gamer' },
-      { id: 'HUMAN', title: 'Asesor' }
-    ]);
+    const wantsCuotas = !!(bot.short.wantsInstallments || bot.long.financingHint);
+    const msg = bot.short.lastQuery
+      ? `De una 🙌 Si querés ver *más opciones* de *${bot.short.lastQuery}*, decime *más*. Si buscás otra cosa, decime qué.`
+      : 'De una 🙌 Decime qué estás buscando y te paso opciones.';
+    const tail = wantsCuotas ? '\n\nSi lo querés en cuotas: *Visa/Mastercard 3 o 6 sin interés* (según promo).' : '';
+    await sendAndStoreText(convo.id, convo.waFrom, msg + tail, false);
     return { replied: true };
   }
 
@@ -327,12 +335,14 @@ export async function handleIncomingCustomerMessage(
     const firstTouch = !ctx.welcomedAt;
     if (firstTouch) ctx.welcomedAt = now.toISOString();
     await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctx, lastCustomerMsgAt: now } });
-
-    const msg = firstTouch ? buildWelcome() : "¡Hola! ¿Qué estás buscando hoy?";
-    await sendAndStoreText(convo.id, convo.waFrom, msg, false);
+    const msg = firstTouch ? buildWelcome() : '¡Hola! ¿Qué estás buscando?';
+    await sendAndStoreButtons(convo.id, convo.waFrom, msg, [
+      { id: 'PICK:ps5', title: 'PS5' },
+      { id: 'PICK:silla gamer', title: 'Silla gamer' },
+      { id: 'HUMAN', title: 'Asesor' }
+    ]);
     return { replied: true };
   }
-
 
   if (meta.kind === 'NEGATIVE') {
     // Keep it human: acknowledge and offer alternatives.
@@ -340,12 +350,8 @@ export async function handleIncomingCustomerMessage(
       where: { id: convo.id },
       data: { intentScore: Math.max(0, (convo.intentScore ?? 0) - 1), leadStatus: 'COLD', context: ctx, lastCustomerMsgAt: now }
     });
-    const msg = 'Ok 👍 ¿Querés que te pase alternativas (más económicas / similares) o preferís hablar con un asesor?';
-    await sendAndStoreButtons(convo.id, convo.waFrom, msg, [
-      { id: 'MORE', title: 'Más opciones' },
-      { id: 'HUMAN', title: 'Asesor' },
-      { id: 'INSTALLMENTS', title: 'Cuotas' }
-    ]);
+    const msg = 'Ok 👍 Si querés, te paso alternativas más económicas o similares. Decime: ¿qué presupuesto tenés aprox y qué estabas buscando?';
+    await sendAndStoreText(convo.id, convo.waFrom, msg, false);
     return { replied: true };
   }
 
@@ -358,11 +364,8 @@ export async function handleIncomingCustomerMessage(
     const ids: string[] = (ctx.lastResults as any) || bot.short.lastResults || [];
     if (ids.length && (idx < 0 || idx >= ids.length)) {
       await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctx, lastCustomerMsgAt: now } });
-      await sendAndStoreButtons(convo.id, convo.waFrom, `Respondé con un número del *1* al *${ids.length}* 🙂`, [
-        { id: 'MORE', title: 'Ver lista' },
-        { id: 'HUMAN', title: 'Asesor' },
-        { id: 'PICK:ps5', title: 'PS5' }
-      ]);
+      const msg = `Respondé con un número del *1* al *${ids.length}* 🙂\nSi querés volver a ver opciones, decime *más*.`;
+      await sendAndStoreText(convo.id, convo.waFrom, msg, false);
       return { replied: true };
     }
     if (idx >= 0 && idx < ids.length) {
@@ -377,11 +380,16 @@ export async function handleIncomingCustomerMessage(
             ? `$${Number(item.price).toLocaleString('es-AR')}`
             : (item.price_raw ?? '');
 
+        const wantsCuotas = !!(bot.short.wantsInstallments || bot.long.financingHint);
+        const cuotasLine = wantsCuotas
+          ? '\n💳 Cuotas: *Visa/Mastercard 3 o 6 sin interés* (según promo).\nDecime si preferís *3* o *6*.'
+          : '';
+
         const reply =
           `✅ *${item.name}*\n` +
           (price ? `💲 ${price}\n` : '') +
           (item.url ? `🔗 ${item.url}\n` : '') +
-          `\n¿Querés ver más opciones parecidas?`;
+          `${cuotasLine}\n\n¿Querés ver más opciones parecidas? (decime *más*)`;
 
         await prisma.conversation.update({
           where: { id: convo.id },
@@ -448,22 +456,32 @@ export async function handleIncomingCustomerMessage(
   const frustrationScore = bot.frustration.score ?? 0;
   const shouldHandoff =
     intent.kind === 'HUMAN' ||
-    intent.kind === 'BUY_SIGNAL';
+    intent.kind === 'BUY_SIGNAL' ||
+    newScore >= 7 ||
+    frustrationScore >= 4;
 
+  if (shouldHandoff) {
+    await tryAssignSeller(convo.id);
 
-  if (!shouldHandoff && frustrationScore >= 4) {
-    await sendAndStoreButtons(
-      convo.id,
-      convo.waFrom,
-      "¿Querés que te atienda un asesor o sigo yo con opciones?",
-      [
-        { id: "assist_human", title: "Hablar con asesor" },
-        { id: "assist_bot", title: "Seguí vos" }
-      ]
-    );
+    const handoffText = buildHandoffMsg(convo.id, ctx);
+    await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctx } });
+
+    await sendAndStoreText(convo.id, convo.waFrom, handoffText, false);
+
+    await prisma.conversationEvent.create({
+      data: {
+        conversationId: convo.id,
+        kind: 'HANDOFF_REQUESTED',
+        payload: {
+          reason: intent.kind,
+          score: newScore,
+          frustration: frustrationScore
+        }
+      }
+    });
+    // Keep BOT_ON: bot continues unless a human takes over
     return { replied: true };
   }
-
 
   // Clarify/ambiguity handling
   const lastQuery = bot.short.lastQuery || (ctx.lastQuery as any);
@@ -500,25 +518,28 @@ export async function handleIncomingCustomerMessage(
     ctx.bot = bot;
     await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctx } });
 
+    const wantsCuotas = !!(bot.short.wantsInstallments || bot.long.financingHint);
+    const tail = wantsCuotas
+      ? '\n\n💳 Cuotas: *Visa/Mastercard 3 o 6 sin interés* (según promo).'
+      : '\n\nSi querés cuotas, decime *cuotas*. Si querés más opciones, decime *más*.';
+
     const msg = products.length
-      ? `${buildSearchReply(products as any, queryForMore)}\n\n${buildSoftClose()}`
+      ? `${buildSearchReply(products as any, queryForMore)}${tail}`
       : buildAskClarify();
 
-    await sendAndStoreButtons(convo.id, convo.waFrom, msg, [
-      { id: 'HUMAN', title: 'Asesor' },
-      { id: 'INSTALLMENTS', title: 'Cuotas' },
-      { id: 'PICK:mouse', title: 'Mouse' }
-    ]);
+    await sendAndStoreText(convo.id, convo.waFrom, msg, true);
     return { replied: true };
   }
 
   if (intent.kind === 'INSTALLMENTS') {
-    const msg = buildInstallmentsReply();
-    await sendAndStoreButtons(convo.id, convo.waFrom, msg, [
-      { id: 'HUMAN', title: 'Hablar con asesor' },
-      { id: queryForMore ? 'MORE' : 'PICK:notebook', title: queryForMore ? 'Ver opciones' : 'Notebook' },
-      { id: 'BUY', title: 'Quiero comprar' }
-    ]);
+    // Persist intent so the next pick can keep the "cuotas" context.
+    bot.short.wantsInstallments = true;
+    bot.long.financingHint = 'Cuotas';
+    ctx.bot = bot;
+    await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctx } });
+
+    const msg = buildInstallmentsReply() + (queryForMore ? `\n\nSi querés, decime *más* y te muestro más opciones de *${queryForMore}* para elegir por número.` : '');
+    await sendAndStoreText(convo.id, convo.waFrom, msg, false);
     return { replied: true };
   }
 
@@ -555,15 +576,19 @@ export async function handleIncomingCustomerMessage(
 
     await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctx } });
 
+    const wantsCuotas = !!(bot.short.wantsInstallments || bot.long.financingHint);
+    const soft = shouldSoftClose(bot, now)
+      ? (wantsCuotas
+          ? '\n\n💳 Cuotas: *Visa/Mastercard 3 o 6 sin interés* (según promo).'
+          : `\n\n${buildSoftClose()}`)
+      : '';
+    if (soft) bot.short.lastSoftCloseAt = now.toISOString();
+
     const msg = products.length
-      ? `${buildSearchReply(products as any, q)}\n\n${buildSoftClose()}`
+      ? `${buildSearchReply(products as any, q)}${soft}`
       : (firstTouch ? buildWelcome() : buildAskClarify());
 
-    await sendAndStoreButtons(convo.id, convo.waFrom, msg, [
-      { id: 'HUMAN', title: 'Hablar con asesor' },
-      { id: 'INSTALLMENTS', title: 'Cuotas' },
-      { id: 'MORE', title: 'Más opciones' }
-    ]);
+    await sendAndStoreText(convo.id, convo.waFrom, msg, true);
     return { replied: true };
   }
 
@@ -585,16 +610,20 @@ export async function handleIncomingCustomerMessage(
 
     await prisma.conversation.update({ where: { id: convo.id }, data: { context: ctx } });
 
+    const wantsCuotas = !!(bot.short.wantsInstallments || bot.long.financingHint);
+    const soft = products.length && shouldSoftClose(bot, now)
+      ? (wantsCuotas
+          ? '\n\n💳 Cuotas: *Visa/Mastercard 3 o 6 sin interés* (según promo).'
+          : `\n\n${buildSoftClose()}`)
+      : '';
+    if (soft) bot.short.lastSoftCloseAt = now.toISOString();
+
     const base = products.length
       ? buildSearchReply(products as any, q)
       : (firstTouch ? buildWelcome() : buildAskClarify());
-    const msg = products.length ? `${base}\n\n${buildSoftClose()}` : base;
+    const msg = products.length ? `${base}${soft}` : base;
 
-    await sendAndStoreButtons(convo.id, convo.waFrom, msg, [
-      { id: 'HUMAN', title: 'Hablar con asesor' },
-      { id: 'INSTALLMENTS', title: 'Cuotas' },
-      { id: 'MORE', title: 'Más' }
-    ]);
+    await sendAndStoreText(convo.id, convo.waFrom, msg, true);
     return { replied: true };
   }
 
@@ -619,10 +648,15 @@ export async function handleIncomingCustomerMessage(
   }
 
   const msg = firstTouch ? buildWelcome() : buildAskClarify();
-  await sendAndStoreButtons(convo.id, convo.waFrom, msg, [
-    { id: 'PICK:ps5', title: 'PS5' },
-    { id: 'PICK:silla gamer', title: 'Silla gamer' },
-    { id: 'HUMAN', title: 'Asesor' }
-  ]);
+  // Avoid spamming menus: only show quick buttons on first touch or when the user seems stuck.
+  if (firstTouch || (bot.short.clarifyLoops ?? 0) >= 2) {
+    await sendAndStoreButtons(convo.id, convo.waFrom, msg, [
+      { id: 'PICK:ps5', title: 'PS5' },
+      { id: 'PICK:silla gamer', title: 'Silla gamer' },
+      { id: 'HUMAN', title: 'Asesor' }
+    ]);
+  } else {
+    await sendAndStoreText(convo.id, convo.waFrom, msg, false);
+  }
   return { replied: true };
 }

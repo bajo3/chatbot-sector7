@@ -1,7 +1,70 @@
 import { loadCatalog, type CatalogItem } from "../catalog/catalog.repo.js";
 
 function norm(s: string) {
-  return (s || "").toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+  // Normalización "search-friendly":
+  // - minúsculas
+  // - sin tildes
+  // - convierte cualquier símbolo/puntuación en espacio
+  // - colapsa espacios
+  return (s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function levenshtein(a: string, b: string, limit = 3): number {
+  // Implementación con corte temprano (suficiente para catálogo chico)
+  if (a === b) return 0;
+  if (!a || !b) return Math.max(a.length, b.length);
+
+  const la = a.length;
+  const lb = b.length;
+  if (Math.abs(la - lb) > limit) return limit + 1;
+
+  let prev = new Array(lb + 1);
+  for (let j = 0; j <= lb; j++) prev[j] = j;
+
+  for (let i = 1; i <= la; i++) {
+    const ca = a.charCodeAt(i - 1);
+    const cur = new Array(lb + 1);
+    cur[0] = i;
+    let rowMin = cur[0];
+
+    for (let j = 1; j <= lb; j++) {
+      const cost = ca === b.charCodeAt(j - 1) ? 0 : 1;
+      const del = prev[j] + 1;
+      const ins = cur[j - 1] + 1;
+      const sub = prev[j - 1] + cost;
+      const v = Math.min(del, ins, sub);
+      cur[j] = v;
+      if (v < rowMin) rowMin = v;
+    }
+
+    prev = cur;
+    if (rowMin > limit) return limit + 1;
+  }
+
+  return prev[lb];
+}
+
+function wordFuzzyHit(word: string, text: string): boolean {
+  if (!word || !text) return false;
+  if (text.includes(word)) return true;
+
+  // fuzzy: comparar contra tokens del nombre/categoría
+  const tokens = text.split(/\s+/).filter(Boolean);
+  const wlen = word.length;
+  const limit = wlen >= 10 ? 3 : wlen >= 7 ? 2 : wlen >= 5 ? 1 : 0;
+  if (limit === 0) return false;
+
+  for (const t of tokens) {
+    if (Math.abs(t.length - wlen) > limit) continue;
+    if (levenshtein(word, t, limit) <= limit) return true;
+  }
+  return false;
 }
 
 function parsePriceArs(it: CatalogItem): number | null {
@@ -36,11 +99,12 @@ export function searchProductsFromJson(query: string, limit = 3, opts: SearchOpt
       if (q && cat.includes(q)) score += 2;
       if (q && id.includes(q)) score += 1;
 
-      // extra: split query words
+      // extra: split query words (incluye fuzzy para typos)
       const words = q.split(/\s+/).filter(Boolean);
-      if (words.length >= 2) {
-        const hit = words.reduce((acc, w) => acc + (name.includes(w) ? 1 : 0), 0);
-        score += Math.min(2, hit);
+      if (words.length) {
+        const hit = words.reduce((acc, w) => acc + (wordFuzzyHit(w, name) ? 1 : 0), 0);
+        const hitCat = words.reduce((acc, w) => acc + (wordFuzzyHit(w, cat) ? 1 : 0), 0);
+        score += Math.min(3, hit + Math.min(1, hitCat));
       }
 
       const price = parsePriceArs(it);
