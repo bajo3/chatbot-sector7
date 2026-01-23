@@ -1,11 +1,22 @@
-import { Server } from 'socket.io';
-import { createAdapter } from '@socket.io/redis-adapter';
-import { env, isAllowedPanelOrigin } from '../env.js';
-import IORedis from 'ioredis';
+import { Server } from "socket.io";
+import { createAdapter } from "@socket.io/redis-adapter";
+import { env, isAllowedPanelOrigin } from "../env.js";
+import type { Server as HttpServer } from "node:http";
+import { createRequire } from "node:module";
 
 export let io: Server;
 
-export function initSocket(httpServer: any) {
+// ESM-safe require (evita el bug de typings/resolution)
+const require = createRequire(import.meta.url);
+
+// Tipamos el constructor como "new (...args) => any" para destrabar TS2351
+const RedisCtor = require("ioredis") as unknown as new (
+  ...args: any[]
+) => {
+  duplicate(): any;
+};
+
+export function initSocket(httpServer: HttpServer) {
   io = new Server(httpServer, {
     cors: {
       origin: (origin, cb) => {
@@ -19,18 +30,19 @@ export function initSocket(httpServer: any) {
     transports: ["websocket", "polling"],
   });
 
-
-  // Optional: scale Socket.IO horizontally with Redis adapter
   if (env.REDIS_URL) {
-    const pubClient = new IORedis(env.REDIS_URL, {
+    const pubClient = new RedisCtor(env.REDIS_URL, {
       maxRetriesPerRequest: null,
-      enableReadyCheck: false
+      enableReadyCheck: false,
     });
+
     const subClient = pubClient.duplicate();
-    io.adapter(createAdapter(pubClient as any, subClient as any));
+    io.adapter(createAdapter(pubClient, subClient));
   }
-  io.on('connection', (socket) => {
-    socket.emit('hello', { ok: true });
+
+  io.on("connection", (socket) => {
+    socket.emit("hello", { ok: true });
   });
+
   return io;
 }

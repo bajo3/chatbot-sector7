@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { loadCatalog } from "./catalog.repo";
+// NOTE (ESM/NodeNext): keep the .js extension in relative imports so the emitted JS runs in Node ESM.
+import { loadCatalog, type CatalogItem } from "./catalog.repo.js";
 
 export const catalogRouter = Router();
 
@@ -11,9 +12,9 @@ catalogRouter.get("/search", (req, res) => {
   const category = String(req.query.category ?? "").trim().toLowerCase();
   const limit = Math.min(Number(req.query.limit ?? 8) || 8, 20);
 
-  const items = loadCatalog();
+  const items: CatalogItem[] = loadCatalog();
 
-  const filtered = items.filter((it) => {
+  const filtered = items.filter((it: CatalogItem) => {
     const name = (it.name ?? "").toLowerCase();
     const cat = (it.category ?? "").toLowerCase();
 
@@ -24,7 +25,7 @@ catalogRouter.get("/search", (req, res) => {
   });
 
   // Orden simple: más nuevo primero si existe updated_at, si no, por name
-  filtered.sort((a, b) => {
+  filtered.sort((a: CatalogItem, b: CatalogItem) => {
     const da = a.updated_at ? Date.parse(a.updated_at) : 0;
     const db = b.updated_at ? Date.parse(b.updated_at) : 0;
     if (db !== da) return db - da;
@@ -43,8 +44,8 @@ catalogRouter.get("/search", (req, res) => {
  */
 catalogRouter.get("/:id", (req, res) => {
   const id = String(req.params.id);
-  const items = loadCatalog();
-  const item = items.find((x) => x.id === id);
+  const items: CatalogItem[] = loadCatalog();
+  const item = items.find((x: CatalogItem) => x.id === id);
 
   if (!item) return res.status(404).json({ ok: false, error: "NOT_FOUND" });
   return res.json({ ok: true, item });
